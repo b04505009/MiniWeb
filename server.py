@@ -30,7 +30,11 @@ def result():
             file_dir_name = str(dir_name + '/' +
                                 secure_filename(upload.filename))
             print(file_dir_name)
-    return render_template('result.html', file_dir_name=file_dir_name)
+            return render_template('result.html', file_dir_name=file_dir_name)
+        else:
+            return render_template('result.html', file_dir_name=None)
+    else:
+        return render_template('result.html', file_dir_name=None)
 
 
 server.run(port=5000, debug=True)
