@@ -12,9 +12,9 @@ def home():
     return render_template('home.html')
 
 
-@server.route('/test')
+@server.route('/upload')
 def test():
-    return render_template('test.html')
+    return render_template('upload.html')
 
 
 @server.route('/result', methods=['GET', 'POST'])
