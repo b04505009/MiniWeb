@@ -63,14 +63,14 @@
         $('form input').change(function() {
             var type = this.files[0].name.split(".")
             type = type[type.length - 1]
-            switch (type) {
-                case 'pcap':
-                    $('form p').text(this.files.length + " file(s) selected");
-                    break;
-                default:
-                    alert('please enter correct file format');
-                    break;
+            if (type == 'pcap') {
+                $('form p').text(this.files.length + " file(s) selected");
+            } else {
+                alert('please select a pcap file');
+                $("#upload").val('');
+                $('form p').text('Drag your files here or click in this area.')
             }
+
         });
     });
 </script>
