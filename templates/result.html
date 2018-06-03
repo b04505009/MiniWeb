@@ -79,21 +79,22 @@
                         <th>pkt_in</th>
                         <th>pkt_out</th>
                     </thead>
+                    {%for i in range(flow_num)%}
                     <tbody>
                         <tr>
                             <td><input type="checkbox" class="checkthis" /></td>
-                            <td>0</td>
-                            <td>0.0.0.0</td>
-                            <td>0.0.0.0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
-                            <td>0</td>
+                            <td>{{label[i]}}</td>
+                            <td>{{sa[i]}}</td>
+                            <td>{{da[i]}}</td>
+                            <td>{{sp[i]}}</td>
+                            <td>{{dp[i]}}</td>
+                            <td>{{pr[i]}}</td>
+                            <td>{{pkt_in[i]}}</td>
+                            <td>{{pkt_out[i]}}</td>
                         </tr>
 
                     </tbody>
-
+                    {% endfor %}
                 </table>
 
                 <div class="clearfix"></div>

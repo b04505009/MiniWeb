@@ -22,6 +22,23 @@ def result():
     classifier_names = [
         'label(score)', 'sa', 'da', 'sp', 'dp', 'pr', 'pkt_in', 'pkt_out'
     ]
+    label = []
+    sa = []
+    da = []
+    sp = []
+    dp = []
+    pr = []
+    pkt_in = []
+    pkt_out = []
+    label = [0, 1, 2]
+    sa = [0, 1, 2]
+    da = [0, 1, 2]
+    sp = [0, 1, 2]
+    dp = [0, 1, 2]
+    pr = [0, 1, 2]
+    pkt_in = [0, 1, 2]
+    pkt_out = [0, 1, 2]
+    flow_num = len(label)
     if request.method == 'POST':
         print(request.files.get('upload'))
         is_upload = False
@@ -36,26 +53,41 @@ def result():
             return render_template(
                 'result.html',
                 file_dir_name=file_dir_name,
-                results=None,
-                num_flows=None,
-                t=None,
-                classifier_names=classifier_names)
+                label=label,
+                sa=sa,
+                da=da,
+                sp=sp,
+                dp=dp,
+                pr=pr,
+                pkt_in=pkt_in,
+                pkt_out=pkt_out,
+                flow_num=flow_num)
         else:
             return render_template(
                 'result.html',
                 file_dir_name=None,
-                results=None,
-                num_flows=None,
-                t=None,
-                classifier_names=classifier_names)
+                label=label,
+                sa=sa,
+                da=da,
+                sp=sp,
+                dp=dp,
+                pr=pr,
+                pkt_in=pkt_in,
+                pkt_out=pkt_out,
+                flow_num=flow_num)
     else:
         return render_template(
             'result.html',
             file_dir_name=None,
-            results=None,
-            num_flows=None,
-            t=None,
-            classifier_names=classifier_names)
+            label=label,
+            sa=sa,
+            da=da,
+            sp=sp,
+            dp=dp,
+            pr=pr,
+            pkt_in=pkt_in,
+            pkt_out=pkt_out,
+            flow_num=flow_num)
 
 
 server.run(port=5000, debug=True)
