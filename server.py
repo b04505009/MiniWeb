@@ -19,6 +19,9 @@ def test():
 
 @server.route('/result', methods=['GET', 'POST'])
 def result():
+    classifier_names = [
+        'label(score)', 'sa', 'da', 'sp', 'dp', 'pr', 'pkt_in', 'pkt_out'
+    ]
     if request.method == 'POST':
         print(request.files.get('upload'))
         is_upload = False
@@ -30,11 +33,29 @@ def result():
             file_dir_name = str(dir_name + '/' +
                                 secure_filename(upload.filename))
             print(file_dir_name)
-            return render_template('result.html', file_dir_name=file_dir_name)
+            return render_template(
+                'result.html',
+                file_dir_name=file_dir_name,
+                results=None,
+                num_flows=None,
+                t=None,
+                classifier_names=classifier_names)
         else:
-            return render_template('result.html', file_dir_name=None)
+            return render_template(
+                'result.html',
+                file_dir_name=None,
+                results=None,
+                num_flows=None,
+                t=None,
+                classifier_names=classifier_names)
     else:
-        return render_template('result.html', file_dir_name=None)
+        return render_template(
+            'result.html',
+            file_dir_name=None,
+            results=None,
+            num_flows=None,
+            t=None,
+            classifier_names=classifier_names)
 
 
 server.run(port=5000, debug=True)
