@@ -91,3 +91,4 @@ def result():
 
 
 server.run(port=5000, debug=True)
+# server.run(host="192.168.0.1",port=5000, debug=True)
