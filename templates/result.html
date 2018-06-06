@@ -65,7 +65,7 @@
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <h4>Number of flows:{{num_flows}}</h4>
+            <h4>Number of flows:{{joy_flow_num}}</h4>
             <div class="table-responsive">
                 <table cellpadding="10" border='1' id="mytable" class="table table-bordered table-striped">
                     <thead>
@@ -79,18 +79,18 @@
                         <th>pkt_in</th>
                         <th>pkt_out</th>
                     </thead>
-                    {%for i in range(flow_num)%}
+                    {%for i in range(joy_flow_num)%}
                     <tbody>
                         <tr>
                             <td><input type="checkbox" class="checkthis" /></td>
-                            <td>{{label[i]}}</td>
-                            <td>{{sa[i]}}</td>
-                            <td>{{da[i]}}</td>
-                            <td>{{sp[i]}}</td>
-                            <td>{{dp[i]}}</td>
-                            <td>{{pr[i]}}</td>
-                            <td>{{pkt_in[i]}}</td>
-                            <td>{{pkt_out[i]}}</td>
+                            <td>{{joy_label[i]}}</td>
+                            <td>{{joy_sa[i]}}</td>
+                            <td>{{joy_da[i]}}</td>
+                            <td>{{joy_sp[i]}}</td>
+                            <td>{{joy_dp[i]}}</td>
+                            <td>{{joy_pr[i]}}</td>
+                            <td>{{joy_pkt_in[i]}}</td>
+                            <td>{{joy_pkt_out[i]}}</td>
                         </tr>
 
                     </tbody>
