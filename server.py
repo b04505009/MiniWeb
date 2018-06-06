@@ -2,12 +2,16 @@ from flask import Flask, render_template, request
 from os.path import join, dirname
 from werkzeug.utils import secure_filename
 import tempfile
+import hashlib
+import string
 import sys
 import subprocess
 import pandas as pd
 
 server = Flask(__name__)
 
+def valid_name(name):
+    return all(c in string.hexdigits for c in name)
 
 @server.route('/')
 @server.route('/home')
@@ -47,13 +51,15 @@ def result():
         is_upload = False
         if request.files.get('upload') != None:
             upload = request.files.get('upload')
+            filename = hashlib.sha256(upload).hexdigest()
             dir_name = tempfile.mkdtemp()
-            upload.save(dir_name + '/' + secure_filename(upload.filename))
+            upload.save(dir_name + '/' + filename)
             is_upload = True
             file_dir_name = str(dir_name + '/' +
-                                secure_filename(upload.filename))
+                                filename)
             print(file_dir_name)
-            flowmeter_result(dir_name,secure_filename(upload.filename))
+            flowmeter_result(dir_name,filename)
+            # TODO : use joy controller 
             return render_template(
                 'result.html',
                 file_dir_name=file_dir_name,
@@ -93,17 +99,25 @@ def result():
                 joy_pkt_out=joy_pkt_out,
                 joy_flow_num=joy_flow_num)
 
+# For test now
+@server.route('/results')
+@server.route('/results/<ID>')
+def result(ID=""):
+    if not valid_name(ID) or ID == "":
+        return "Invalid Query"
+    #if ID not exist:
+    #    return "Invalid Query"
+    return ID
 
 def joy_result():
     return 
 
 def flowmeter_result(pcapdirpath,filename):
-    #檔名要hash
     subprocess.Popen('java -Djava.library.path=/home/esoe/CICFlowMeter-Command/jnetpcap-1.4.r1425 -jar /home/esoe/CICFlowMeter-Command/CICFlowMeter_main.jar -pcapdir ' + pcapdirpath + ' -outdir /home/esoe/csv/', shell=True)
     df = pd.read_csv()
     return
 
 
 server.run(port=5000, debug=True)
-# server.run(host="192.168.0.1",port=5000, debug=True)
+server.run(host="192.168.21.2",port=5000, debug=True)
 
