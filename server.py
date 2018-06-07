@@ -51,14 +51,15 @@ def result():
         is_upload = False
         if request.files.get('upload') != None:
             upload = request.files.get('upload')
-            filename = hashlib.sha256(upload).hexdigest()
+            content = request.data
+            filename = hashlib.sha256(content).hexdigest()
             dir_name = tempfile.mkdtemp()
             upload.save(dir_name + '/' + filename)
             is_upload = True
             file_dir_name = str(dir_name + '/' +
                                 filename)
             print(file_dir_name)
-            flowmeter_result(dir_name,filename)
+            #flowmeter_result(dir_name,filename)
             # TODO : use joy controller 
             return render_template(
                 'result.html',
@@ -102,7 +103,7 @@ def result():
 # For test now
 @server.route('/results')
 @server.route('/results/<ID>')
-def result(ID=""):
+def results(ID=""):
     if not valid_name(ID) or ID == "":
         return "Invalid Query"
     #if ID not exist:
@@ -119,5 +120,5 @@ def flowmeter_result(pcapdirpath,filename):
 
 
 server.run(port=5000, debug=True)
-server.run(host="192.168.21.2",port=5000, debug=True)
+#server.run(host="192.168.0.1",port=5000, debug=True)
 
