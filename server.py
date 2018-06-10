@@ -8,10 +8,15 @@ import sys
 import subprocess
 import pandas as pd
 
+IDSet = set()
+dir_name = tempfile.mkdtemp()
+
 server = Flask(__name__)
+
 
 def valid_name(name):
     return all(c in string.hexdigits for c in name)
+
 
 @server.route('/')
 @server.route('/home')
@@ -48,22 +53,22 @@ def result():
     joy_flow_num = len(joy_label)
     if request.method == 'POST':
         print(request.files.get('upload'))
-        is_upload = False
+        print(dir_name)
         if request.files.get('upload') != None:
             upload = request.files.get('upload')
-            content = request.data
+            content = upload.read()
             filename = hashlib.sha256(content).hexdigest()
-            dir_name = tempfile.mkdtemp()
-            upload.save(dir_name + '/' + filename)
-            is_upload = True
+            IDSet.add(filename)
+            ID = filename
+            upload.save(dir_name + '/' + ID)
             file_dir_name = str(dir_name + '/' +
-                                filename)
+                                ID)
             print(file_dir_name)
-            #flowmeter_result(dir_name,filename)
-            # TODO : use joy controller 
+            #flowmeter_result(dir_name, ID)
+            # TODO : use joy controller
             return render_template(
                 'result.html',
-                file_dir_name=file_dir_name,
+                ID=ID,
                 joy_label=joy_label,
                 joy_sa=joy_sa,
                 joy_da=joy_da,
@@ -76,7 +81,7 @@ def result():
         else:
             return render_template(
                 'result.html',
-                file_dir_name=None,
+                ID=None,
                 joy_label=joy_label,
                 joy_sa=joy_sa,
                 joy_da=joy_da,
@@ -89,36 +94,69 @@ def result():
     else:
         return render_template(
             'result.html',
-            file_dir_name=None,
-                joy_label=joy_label,
-                joy_sa=joy_sa,
-                joy_da=joy_da,
-                joy_sp=joy_sp,
-                joy_dp=joy_dp,
-                joy_pr=joy_pr,
-                joy_pkt_in=joy_pkt_in,
-                joy_pkt_out=joy_pkt_out,
-                joy_flow_num=joy_flow_num)
+            ID=None,
+            joy_label=joy_label,
+            joy_sa=joy_sa,
+            joy_da=joy_da,
+            joy_sp=joy_sp,
+            joy_dp=joy_dp,
+            joy_pr=joy_pr,
+            joy_pkt_in=joy_pkt_in,
+            joy_pkt_out=joy_pkt_out,
+            joy_flow_num=joy_flow_num)
 
 # For test now
+
+
 @server.route('/results')
 @server.route('/results/<ID>')
 def results(ID=""):
     if not valid_name(ID) or ID == "":
         return "Invalid Query"
-    #if ID not exist:
-    #    return "Invalid Query"
-    return ID
+    if ID not in IDSet:
+        return "Invalid Query"
+    else:
+        joy_label = [0, 1, 2, 3]
+        joy_sa = [0, 1, 2, 3]
+        joy_da = [0, 1, 2, 3]
+        joy_sp = [0, 1, 2, 3]
+        joy_dp = [0, 1, 2, 3]
+        joy_pr = [0, 1, 2, 3]
+        joy_pkt_in = [0, 1, 2, 3]
+        joy_pkt_out = [0, 1, 2, 3]
+        joy_flow_num = len(joy_label)
+        return render_template(
+            'results.html',
+            ID=ID,
+            joy_label=joy_label,
+            joy_sa=joy_sa,
+            joy_da=joy_da,
+            joy_sp=joy_sp,
+            joy_dp=joy_dp,
+            joy_pr=joy_pr,
+            joy_pkt_in=joy_pkt_in,
+            joy_pkt_out=joy_pkt_out,
+            joy_flow_num=joy_flow_num)
+
+
+@server.route('/secret')
+def secret():
+    a = ""
+    for ID in IDSet:
+        a += ID + '\n'
+    return a
+
 
 def joy_result():
-    return 
+    return
 
-def flowmeter_result(pcapdirpath,filename):
-    subprocess.Popen('java -Djava.library.path=/home/esoe/CICFlowMeter-Command/jnetpcap-1.4.r1425 -jar /home/esoe/CICFlowMeter-Command/CICFlowMeter_main.jar -pcapdir ' + pcapdirpath + ' -outdir /home/esoe/csv/', shell=True)
-    df = pd.read_csv()
+
+def flowmeter_result(dir_name, ID):
+    subprocess.Popen('java -Djava.library.path=/home/esoe/CICFlowMeter-Command/jnetpcap-1.4.r1425 -jar /home/esoe/CICFlowMeter-Command/CICFlowMeter.jar -pcappath ' +
+                     dir_name + '/' + ID + ' -outdir /home/esoe/csv/', shell=True)
+    #df = pd.read_csv()
     return
 
 
 server.run(port=5000, debug=True)
 #server.run(host="192.168.0.1",port=5000, debug=True)
-
