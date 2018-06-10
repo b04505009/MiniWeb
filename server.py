@@ -10,6 +10,7 @@ import pandas as pd
 
 IDSet = set()
 dir_name = tempfile.mkdtemp()
+csv_dir = tempfile.mkdtemp()
 
 server = Flask(__name__)
 
@@ -60,11 +61,13 @@ def result():
             filename = hashlib.sha256(content).hexdigest()
             IDSet.add(filename)
             ID = filename
-            upload.save(dir_name + '/' + ID)
+            #upload.save(dir_name + '/' + ID)
+            with open(dir_name + '/' + ID + '.pcap', 'wb') as file:
+                file.write(content)
             file_dir_name = str(dir_name + '/' +
-                                ID)
+                                ID+'.pcap')
             print(file_dir_name)
-            #flowmeter_result(dir_name, ID)
+            flowmeter_result(file_dir_name, ID)
             # TODO : use joy controller
             return render_template(
                 'result.html',
@@ -151,10 +154,12 @@ def joy_result():
     return
 
 
-def flowmeter_result(dir_name, ID):
-    subprocess.Popen('java -Djava.library.path=/home/esoe/CICFlowMeter-Command/jnetpcap-1.4.r1425 -jar /home/esoe/CICFlowMeter-Command/CICFlowMeter.jar -pcappath ' +
-                     dir_name + '/' + ID + ' -outdir /home/esoe/csv/', shell=True)
-    #df = pd.read_csv()
+def flowmeter_result(file_dir_name, ID):
+    p = subprocess.Popen('java -Djava.library.path=/home/esoe/CICFlowMeter-Command/jnetpcap-1.4.r1425 -jar /home/esoe/CICFlowMeter-Command/CICFlowMeter.jar -pcappath ' +
+                         file_dir_name + ' -outdir ' + csv_dir + '/', shell=True)
+    p.wait()
+    df = pd.read_csv(csv_dir + '/' + ID + '.pcap_Flow.csv')
+    print(df['Flow ID'])
     return
 
 
