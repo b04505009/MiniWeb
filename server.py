@@ -155,7 +155,7 @@ def joy_result():
 
 
 def flowmeter_result(file_dir_name, ID):
-    p = subprocess.Popen('java -Djava.library.path=/home/esoe/CICFlowMeter-Command/jnetpcap-1.4.r1425 -jar /home/esoe/CICFlowMeter-Command/CICFlowMeter.jar -pcappath ' +
+    p = subprocess.Popen('java -Djava.library.path=CICFlowMeter-Command/jnetpcap-1.4.r1425 -jar CICFlowMeter-Command/CICFlowMeter.jar -pcappath ' +
                          file_dir_name + ' -outdir ' + csv_dir + '/', shell=True)
     p.wait()
     df = pd.read_csv(csv_dir + '/' + ID + '.pcap_Flow.csv')
