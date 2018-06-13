@@ -18,6 +18,10 @@ server = Flask(__name__)
 def valid_name(name):
     return all(c in string.hexdigits for c in name)
 
+# magic_number of pcap : b'\x4d\x3c\xb2\xa1'
+# magic_number of pcap : b'\xa1\xv2\xc3\xd4'
+def check_magic_number(file_content,magic):
+    return file_content[:len(magic)]==magic
 
 @server.route('/')
 @server.route('/home')
