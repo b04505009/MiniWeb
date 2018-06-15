@@ -1,0 +1,85 @@
+import pyinotify
+import threading
+import time
+import os
+from pyinotify import WatchManager, Notifier
+from S2P import S2P
+wm = pyinotify.WatchManager()
+#s = pyinotify.Stats()
+
+mask = pyinotify.IN_DELETE | pyinotify.IN_CREATE
+
+
+exitFlag = 0
+
+
+
+class EventHandler(pyinotify.ProcessEvent):
+    path = "/."
+    def process_IN_CREATE(self, event):
+        print("Creating:", event.pathname)
+        type(self).path = event.pathname
+        #print("path = " + type(self).path)
+    
+    def process_IN_DELETE(self, event):
+        print("Removing", event.pathname)
+        type(self).path = "/."
+
+
+class myThread(threading.Thread):
+    def __init__(self, threadID, name, counter):
+        threading.Thread.__init__(self)
+        self.threadID = threadID
+        self.name = name
+        self.counter = counter
+    def run(self):
+        print("thread start:" + self.name)
+        filename = EventHandler().path.split("/")[-1].split(".")[0]
+        filename1 = "realtimedata/joy/" + filename + ".gz"       
+        filename2 = "realtimedata/sleuth/" + filename + ".json"
+        os.system("../joy/sleuth {0} > {1}".format(filename1, filename2))
+        
+        ###Sleuth2Predict
+        y = S2P(filename2)
+        print('Score:')
+        print(y)
+        ###
+        
+        #print_time(self.name, self.counter, 5)
+        print("thread end:" + self.name)
+
+
+def print_time(threadName, delay, counter):
+    while counter:
+        if exitFlag:
+            threadName.exit()
+        time.sleep(delay)
+        print("%s:%s" % (threadName, time.ctime(time.time())))
+        counter -= 1 
+
+
+if __name__ == '__main__':
+
+    
+    notifier = Notifier(wm, EventHandler())
+    wdd = wm.add_watch('realtimedata/joy', mask, rec = True, auto_add = True)
+    
+    #s = pyinotify.Stats()
+    while True:
+        x = EventHandler()
+        try:
+            notifier.process_events()
+            if(notifier.check_events()):
+                notifier.read_events()
+                #repr(s)
+                #print("s")
+                #print(s)
+                #print("x.path = " + x.path)
+                if(x.path.split("/")[-1][0] != '.'):
+                    thread = myThread(1, "Thread" + x.path , 1)
+                    thread.start()
+                    #thread.join()
+        except(KeyboardInterrupt):
+            notifier.stop()
+            break
+    
