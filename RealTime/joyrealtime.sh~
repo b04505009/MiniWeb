@@ -1,0 +1,6 @@
+mkdir -p realtimedata
+mkdir -p realtimedata/joy
+mkdir -p realtimedata/sleuth
+mkdir realtimedata/joy
+cd realtimedata/joy
+sudo ../../../joy/bin/joy interface=ens160 classify=1 tls=1 dns=1 http=1 bidir=1 idp=16 dist=1 entropy=1 count=5 output=auto
