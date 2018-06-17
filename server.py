@@ -75,7 +75,7 @@ def result():
             file_dir_name = str(dir_name + '/' +
                                 ID+'.pcap')
             print(file_dir_name)
-            flowmeter_result(file_dir_name, ID)
+            #flowmeter_result(file_dir_name, ID)
             # TODO : use joy controller
             joy_df = P2P(file_dir_name)
             joy_label = joy_df['label']
@@ -182,5 +182,5 @@ def flowmeter_result(file_dir_name, ID):
     return
 
 
-server.run(port=5000, debug=True)
-#server.run(host="192.168.0.1",port=5000, debug=True)
+#server.run(port=5000, debug=True)
+server.run(host="192.168.0.1", port=5000, debug=True)
