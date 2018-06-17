@@ -78,15 +78,14 @@ def result():
             #flowmeter_result(file_dir_name, ID)
             # TODO : use joy controller
             joy_df = P2P(file_dir_name)
-            joy_label = joy_df['label']
-            joy_sa = joy_df['sa']
-            joy_da = joy_df['da']
-            joy_sp = joy_df['sp']
-            joy_dp = joy_df['dp']
-            joy_pr = joy_df['pr']
-            joy_pkt_in = joy_df['pkt_in']
-            joy_pkt_out = joy_df['pkt_out']
+            joy_label = joy_df['label'].tolist()
+            joy_sa = joy_df['sa'].tolist()
+            joy_da = joy_df['da'].tolist()
+            joy_sp = joy_df['sp'].tolist()
+            joy_dp = joy_df['dp'].tolist()
+            joy_pr = joy_df['pr'].tolist()
             joy_flow_num = len(joy_label)
+            print(joy_df)
             return render_template(
                 'result.html',
                 ID=ID,
@@ -96,8 +95,6 @@ def result():
                 joy_sp=joy_sp,
                 joy_dp=joy_dp,
                 joy_pr=joy_pr,
-                joy_pkt_in=joy_pkt_in,
-                joy_pkt_out=joy_pkt_out,
                 joy_flow_num=joy_flow_num)
         else:
             return render_template(
@@ -183,4 +180,4 @@ def flowmeter_result(file_dir_name, ID):
 
 
 #server.run(port=5000, debug=True)
-server.run(host="192.168.0.1", port=5000, debug=True)
+server.run(host="192.168.21.2", port=5000, debug=True)
