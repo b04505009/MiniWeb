@@ -80,24 +80,8 @@
                         <th>pkt_in</th>
                         <th>pkt_out</th>
                     </thead>
-                    {%for i in range(joy_flow_num)%}
-                    <tbody>
-                        <tr>
-                            <td>
-                                <input type="checkbox" class="checkthis" />
-                            </td>
-                            <td>{{joy_label[i]}}</td>
-                            <td>{{joy_sa[i]}}</td>
-                            <td>{{joy_da[i]}}</td>
-                            <td>{{joy_sp[i]}}</td>
-                            <td>{{joy_dp[i]}}</td>
-                            <td>{{joy_pr[i]}}</td>
-                            <td>{{joy_pkt_in[i]}}</td>
-                            <td>{{joy_pkt_out[i]}}</td>
-                        </tr>
+                    {{ joy_table|safe }}
 
-                    </tbody>
-                    {% endfor %}
                 </table>
 
                 <div class="clearfix"></div>

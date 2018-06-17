@@ -7,6 +7,7 @@ import string
 import sys
 import subprocess
 import pandas as pd
+from S2P import P2P
 
 IDSet = set()
 dir_name = tempfile.mkdtemp()
@@ -20,8 +21,11 @@ def valid_name(name):
 
 # magic_number of pcap : b'\x4d\x3c\xb2\xa1'
 # magic_number of pcap : b'\xa1\xv2\xc3\xd4'
-def check_magic_number(file_content,magic):
-    return file_content[:len(magic)]==magic
+
+
+def check_magic_number(file_content, magic):
+    return file_content[:len(magic)] == magic
+
 
 @server.route('/')
 @server.route('/home')
@@ -73,18 +77,12 @@ def result():
             print(file_dir_name)
             flowmeter_result(file_dir_name, ID)
             # TODO : use joy controller
+            joy_df = P2P(file_dir_name)
+            print(joy_df.to_html())
             return render_template(
                 'result.html',
                 ID=ID,
-                joy_label=joy_label,
-                joy_sa=joy_sa,
-                joy_da=joy_da,
-                joy_sp=joy_sp,
-                joy_dp=joy_dp,
-                joy_pr=joy_pr,
-                joy_pkt_in=joy_pkt_in,
-                joy_pkt_out=joy_pkt_out,
-                joy_flow_num=joy_flow_num)
+                joy_table=joy_df.to_html())
         else:
             return render_template(
                 'result.html',
@@ -155,6 +153,7 @@ def secret():
 
 
 def joy_result():
+
     return
 
 
