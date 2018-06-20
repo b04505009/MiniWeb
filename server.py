@@ -8,6 +8,7 @@ import sys
 import subprocess
 import pandas as pd
 from S2P import P2P
+from flmt_predict import predict
 
 IDSet = set()
 dir_name = tempfile.mkdtemp()
@@ -83,8 +84,7 @@ def result():
             joy_pr = joy_df['pr'].tolist()
             joy_flow_num = len(joy_label)
 
-            #flmt_label = flmt_df['label'].tolist()
-            flmt_label = []
+            flmt_label = flmt_df['tor label'].round(2).tolist()
             flmt_sa = flmt_df['Src IP'].tolist()
             flmt_da = flmt_df['Dst IP'].tolist()
             flmt_sp = flmt_df['Src Port'].tolist()
@@ -120,8 +120,6 @@ def result():
                 joy_sp=joy_sp,
                 joy_dp=joy_dp,
                 joy_pr=joy_pr,
-                joy_pkt_in=joy_pkt_in,
-                joy_pkt_out=joy_pkt_out,
                 joy_flow_num=joy_flow_num)
     else:
         return render_template(
@@ -133,8 +131,6 @@ def result():
             joy_sp=joy_sp,
             joy_dp=joy_dp,
             joy_pr=joy_pr,
-            joy_pkt_in=joy_pkt_in,
-            joy_pkt_out=joy_pkt_out,
             joy_flow_num=joy_flow_num)
 
 # For test now
@@ -189,7 +185,8 @@ def flowmeter_result(file_dir_name, ID):
                          file_dir_name + ' -outdir ' + csv_dir + '/', shell=True)
     p.wait()
     df = pd.read_csv(csv_dir + '/' + ID + '.pcap_Flow.csv')
-    df = df[['Src IP','Dst IP','Src Port','Dst Port','Protocol']]
+    df = predict(df)
+    #df = df[[,'Src IP','Dst IP','Src Port','Dst Port','Protocol']]
     #print(df['Flow ID'])
     return df
 
