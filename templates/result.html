@@ -61,9 +61,11 @@
         $("[data-toggle=tooltip]").tooltip();
     });
 </script>
+
 <div class="container">
     <div class="row">
         <div class="col-md-12">
+            <h3>joy</h3>
             <h4>Number of flows:{{joy_flow_num}}</h4>
             <div class="table-responsive">
                 <table cellpadding="10" border='1' id="mytable" class="table table-bordered table-striped">
@@ -90,6 +92,49 @@
                             <td>{{joy_sp[i]}}</td>
                             <td>{{joy_dp[i]}}</td>
                             <td>{{joy_pr[i]}}</td>
+                        </tr>
+
+                    </tbody>
+                    {% endfor %}
+                </table>
+
+                <div class="clearfix"></div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <h3>flowmeter</h3>
+            <h4>Number of flows:{{flmt_flow_num}}</h4>
+            <div class="table-responsive">
+                <table cellpadding="10" border='1' id="mytable" class="table table-bordered table-striped">
+                    <thead>
+                        <th>
+                            <input type="checkbox" id="checkall" />
+                        </th>
+                        <th>label(score)</th>
+                        <th>sa</th>
+                        <th>da</th>
+                        <th>sp</th>
+                        <th>dp</th>
+                        <th>pr</th>
+                    </thead>
+                    {%for i in range(flmt_flow_num)%}
+                    <tbody>
+                        <tr>
+                            <td>
+                                <input type="checkbox" class="checkthis" />
+                            </td>
+                            <td>{{flmt_label[i]}}</td>
+                            <td>{{flmt_sa[i]}}</td>
+                            <td>{{flmt_da[i]}}</td>
+                            <td>{{flmt_sp[i]}}</td>
+                            <td>{{flmt_dp[i]}}</td>
+                            <td>{{flmt_pr[i]}}</td>
                         </tr>
 
                     </tbody>

@@ -49,16 +49,12 @@ def result():
     joy_sp = []
     joy_dp = []
     joy_pr = []
-    joy_pkt_in = []
-    joy_pkt_out = []
     joy_label = [0, 1, 2]
     joy_sa = [0, 1, 2]
     joy_da = [0, 1, 2]
     joy_sp = [0, 1, 2]
     joy_dp = [0, 1, 2]
     joy_pr = [0, 1, 2]
-    joy_pkt_in = [0, 1, 2]
-    joy_pkt_out = [0, 1, 2]
     joy_flow_num = len(joy_label)
     if request.method == 'POST':
         print(request.files.get('upload'))
@@ -75,9 +71,10 @@ def result():
             file_dir_name = str(dir_name + '/' +
                                 ID+'.pcap')
             print(file_dir_name)
-            #flowmeter_result(file_dir_name, ID)
-            # TODO : use joy controller
+
+            flmt_df = flowmeter_result(file_dir_name, ID)
             joy_df = P2P(file_dir_name)
+            
             joy_label = joy_df['label'].tolist()
             joy_sa = joy_df['sa'].tolist()
             joy_da = joy_df['da'].tolist()
@@ -85,7 +82,17 @@ def result():
             joy_dp = joy_df['dp'].tolist()
             joy_pr = joy_df['pr'].tolist()
             joy_flow_num = len(joy_label)
-            print(joy_df)
+
+            #flmt_label = flmt_df['label'].tolist()
+            flmt_label = []
+            flmt_sa = flmt_df['Src IP'].tolist()
+            flmt_da = flmt_df['Dst IP'].tolist()
+            flmt_sp = flmt_df['Src Port'].tolist()
+            flmt_dp = flmt_df['Dst Port'].tolist()
+            flmt_pr = flmt_df['Protocol'].tolist()
+            flmt_flow_num = len(flmt_sa)
+
+            #print(joy_df)
             return render_template(
                 'result.html',
                 ID=ID,
@@ -95,7 +102,14 @@ def result():
                 joy_sp=joy_sp,
                 joy_dp=joy_dp,
                 joy_pr=joy_pr,
-                joy_flow_num=joy_flow_num)
+                joy_flow_num=joy_flow_num,
+                flmt_label=flmt_label,
+                flmt_sa=flmt_sa,
+                flmt_da=flmt_da,
+                flmt_sp=flmt_sp,
+                flmt_dp=flmt_dp,
+                flmt_pr=flmt_pr,
+                flmt_flow_num=flmt_flow_num)
         else:
             return render_template(
                 'result.html',
@@ -175,8 +189,9 @@ def flowmeter_result(file_dir_name, ID):
                          file_dir_name + ' -outdir ' + csv_dir + '/', shell=True)
     p.wait()
     df = pd.read_csv(csv_dir + '/' + ID + '.pcap_Flow.csv')
-    print(df['Flow ID'])
-    return
+    df = df[['Src IP','Dst IP','Src Port','Dst Port','Protocol']]
+    #print(df['Flow ID'])
+    return df
 
 
 #server.run(port=5000, debug=True)
