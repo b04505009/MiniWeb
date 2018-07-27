@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import os
 from werkzeug.utils import secure_filename
 import tempfile
@@ -7,9 +7,12 @@ import string
 import sys
 import subprocess
 import pandas as pd
+import datetime
+import threading
 from S2P import P2P
 from flmt_predict import predict
 from keras.models import load_model
+from mongokit import Connection, Document
 
 
 IDSet = set()
@@ -19,6 +22,48 @@ dir_name = tempfile.mkdtemp()
 server = Flask(__name__)
 model = load_model("./model/model-00002-0.98101-0.06041.h5")
 model2 = load_model("./model/model-00001-0.98077-0.06064.h5")
+
+class ExportingThread(threading.Thread):
+    def __init__(self):
+        self.status = "nothing"
+        super().__init__()
+
+    def run(self):
+        pass
+    def update(self,status):
+        self.status = status
+
+exporting_threads = {}
+thread_id = 0
+    
+# configuration
+MONGODB_HOST = 'localhost'
+MONGODB_PORT = 27017
+
+# create the little application object
+server = Flask(__name__)
+server.config.from_object(__name__)
+
+# connect to the database
+connection = Connection(server.config['MONGODB_HOST'],
+                        server.config['MONGODB_PORT'])
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!
+connection.test_db.drop_collection('test_col')
+# !!!!!!!!!!!!!!!!!!!!!!!!!!
+
+@connection.register
+class Record(Document):
+    __collection__ = 'test_col'
+    __database__ = 'test_db'
+    structure = {
+        'ID': str,
+        'joy_flow_num': int,
+        'flmt_flow_num': int,
+        'time': str,
+    }
+    use_dot_notation = True
+
 
 def valid_name(name):
     return all(c in string.hexdigits for c in name)
@@ -38,8 +83,18 @@ def home():
 
 
 @server.route('/upload')
-def test():
-    return render_template('upload.html')
+def upload():
+    global exporting_threads
+    global thread_id
+    thread_id = (thread_id + 1)%100
+    exporting_threads[thread_id] = ExportingThread()
+    exporting_threads[thread_id].start()
+    return render_template('upload.html',thread_id = thread_id)
+
+@server.route('/status/<int:thread_id>')
+def status(thread_id):
+    global exporting_threads
+    return str(exporting_threads[thread_id].status)
 
 
 @server.route('/result', methods=['GET', 'POST'])
@@ -66,22 +121,33 @@ def result():
         if request.files.get('upload') != None:
             upload = request.files.get('upload')
             content = upload.read()
-            filename = hashlib.sha256(content).hexdigest()
-            IDSet.add(filename)
-            ID = filename
+            ID = hashlib.sha256(content).hexdigest()
+            
+            print(connection.Record.find())
+            if connection.Record.find_one() is not None and connection.Record.find_one({"ID":ID}) is not None:
+                return redirect('results/'+ ID)
+            
+            IDSet.add(ID)
             #upload.save(dir_name + '/' + ID)
             with open(dir_name + '/' + ID + '.pcap', 'wb') as file:
                 file.write(content)
             file_dir_name = str(dir_name + '/' +
-                                ID+'.pcap')
+                                ID + '.pcap')
             print('file_dir_name: '+file_dir_name)
-            print('dir_name: '+dir_name)
+            print('dir_name: '+ dir_name)
+            
+            global exporting_threads
+            global thread_id
+            
             flmt_df = flowmeter_result(file_dir_name, ID ,model ,model2)
             flmt_df.to_json(dir_name + '/' + ID + '_flmt', compression = 'gzip')
             print("flowmeter good")
+            exporting_threads[thread_id].update("flmt")
             joy_df = P2P(file_dir_name)
             joy_df.to_json(dir_name + '/' + ID + '_joy', compression = 'gzip')
             print("joy good")
+            exporting_threads[thread_id].update("joy")
+             
             os.remove(dir_name + '/' + ID + '.pcap')
             os.remove(dir_name + '/' + ID + '.pcap_Flow.csv')
             
@@ -101,25 +167,18 @@ def result():
             flmt_dp = flmt_df['Dst Port'].tolist()
             flmt_pr = flmt_df['Protocol'].tolist()
             flmt_flow_num = len(flmt_sa)
-
+            
+ 
+            record = connection.Record()
+            record['ID'] = ID
+            record['joy_flow_num'] = joy_flow_num
+            record['flmt_flow_num'] = flmt_flow_num
+            record['time'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            record.save()
+            
             #print(joy_df)
-            return render_template(
-                'results.html',
-                ID=ID,
-                joy_label=joy_label,
-                joy_sa=joy_sa,
-                joy_da=joy_da,
-                joy_sp=joy_sp,
-                joy_dp=joy_dp,
-                joy_pr=joy_pr,
-                joy_flow_num=joy_flow_num,
-                flmt_label=flmt_label,
-                flmt_sa=flmt_sa,
-                flmt_da=flmt_da,
-                flmt_sp=flmt_sp,
-                flmt_dp=flmt_dp,
-                flmt_pr=flmt_pr,
-                flmt_flow_num=flmt_flow_num)
+            return redirect(
+                'results/'+ ID)
         else:
             return render_template(
                 'results.html',
@@ -151,7 +210,8 @@ def result():
 def results(ID=""):
     if not valid_name(ID) or ID == "":
         return "Invalid Query"
-    if ID not in IDSet:
+    #if ID not in IDSet:
+    if connection.Record.find_one({"ID":ID}) is None:
         return "Invalid Query"
     else:
         joy_df = pd.read_json(dir_name + '/' + ID + '_joy', compression = 'gzip')
@@ -189,7 +249,7 @@ def results(ID=""):
             flmt_pr=flmt_pr,
             flmt_flow_num=flmt_flow_num)
 
-
+    
 @server.route('/secret')
 def secret():
     a = ""
@@ -197,10 +257,26 @@ def secret():
         a += ID + '\n'
     return a
 
+@server.route('/secret2')
+def secret2():
+    return str(list(connection.Record.find()))
 
-def joy_result():
 
-    return
+@server.route('/history')
+def history():
+    query = list(connection.Record.find())
+    print(query)
+    if len(query) is not 0:
+        df = pd.DataFrame(query)
+        ID = df['ID'].tolist()
+        joy_flow_num = df['joy_flow_num'].tolist()
+        flmt_flow_num = df['flmt_flow_num'].tolist()
+        time = df['time'].tolist()
+        history_num = len(ID)
+        return render_template('history.html',ID=ID,joy_flow_num=joy_flow_num,flmt_flow_num=flmt_flow_num,time = time,history_num=history_num)
+    else:
+        return render_template('history.html',ID=[],joy_flow_num=[],flmt_flow_num=[],time = [],history_num=0)
+        
 
 
 def flowmeter_result(file_dir_name, ID,model,model2):

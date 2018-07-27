@@ -39,8 +39,8 @@
         color: #000;
         background: #16a085;
         border: none;
-        width: 508px;
-        height: 35px;
+        width: 500px;
+        height: 50px;
         margin-top: 20px;
         margin-left: -4px;
         border-radius: 4px;
@@ -74,9 +74,91 @@
         });
     });
 </script>
+<script>
+        function check_progress() {
+            var thread_id = "{{thread_id}}"
+            var bar = document.getElementById("pb");
+            var modal = $('#myModal')
+            dot = 0
+            console.log(thread_id)
+            function worker() {
+                $.get('status/' + thread_id, function(status) {
+                    console.log(status)
+                    console.log(dot)
+                    if (status == "nothing") {
+                        bar.style.width = '0%';
+                        if(dot % 4 == 0){
+                            modal.find('.modal-body #status_context').text("FlowMeter running");
+                        }
+                        if(dot % 4 == 1){
+                            modal.find('.modal-body #status_context').text("FlowMeter running.");
+                        }
+                        if(dot % 4 == 2){
+                            modal.find('.modal-body #status_context').text("FlowMeter running..");
+                        }
+                        if(dot % 4 == 3){
+                            modal.find('.modal-body #status_context').text("FlowMeter running...");
+                        }
+                        setTimeout(worker, 500)
+                    }
+                    if (status == "flmt") {
+                        bar.style.width = '50%';
+                        if(dot % 4 == 0){
+                            modal.find('.modal-body #status_context').text("FlowMeter finished!  Waiting for Joy running");
+                        }
+                        if(dot % 4 == 1){
+                            modal.find('.modal-body #status_context').text("FlowMeter finished!  Waiting for Joy running.");
+                        }
+                        if(dot % 4 == 2){
+                            modal.find('.modal-body #status_context').text("FlowMeter finished!  Waiting for Joy running..");
+                        }
+                        if(dot % 4 == 3){
+                            modal.find('.modal-body #status_context').text("FlowMeter finished!  Waiting for Joy running...");
+                        }
+                        setTimeout(worker, 500)
+                    }
+                    if (status == "joy") {
+                        bar.style.width = '100%';
+                        setTimeout(worker, 1000)
+                    }
+                    dot = dot + 1;
+                })
+
+            }
+            worker()
+        }
+    </script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    
 <form action="/result" method="POST" enctype="multipart/form-data">
     <input type="file" accept=".pcap" name="upload" id="upload">
     <p>Drag your files here or click in this area.</p>
-    <button type="submit">Upload</button>
-</form>
+    <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#myModal" data-backdrop="static" data-keyboard="false" onclick="check_progress()">Upload</button>
+     <!-- The Modal -->
+  <div class="modal fade" id="myModal">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+      
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Upload Progress</h4>
+        </div>
+        
+        <!-- Modal body -->
+        <div class="modal-body">
+            <div id="status_context"></div>
+            <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%" id="pb"></div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+      </form>
 {% endblock %}
