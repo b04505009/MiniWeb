@@ -76,11 +76,11 @@
 </script>
 <script>
         function check_progress() {
-            var thread_id = "{{thread_id}}"
+            var thread_id = "{{thread_id}}";
             var bar = document.getElementById("pb");
-            var modal = $('#myModal')
-            dot = 0
-            console.log(thread_id)
+            var modal = $('#myModal');
+            dot = 0;
+            console.log(thread_id);
             function worker() {
                 $.get('status/' + thread_id, function(status) {
                     console.log(status)
@@ -88,32 +88,48 @@
                     if (status == "nothing") {
                         bar.style.width = '0%';
                         if(dot % 4 == 0){
-                            modal.find('.modal-body #status_context').text("FlowMeter running");
+                            modal.find('.modal-body #status_context').text("Uploading.");
                         }
                         if(dot % 4 == 1){
-                            modal.find('.modal-body #status_context').text("FlowMeter running.");
+                            modal.find('.modal-body #status_context').text("Uploading..");
                         }
                         if(dot % 4 == 2){
-                            modal.find('.modal-body #status_context').text("FlowMeter running..");
+                            modal.find('.modal-body #status_context').text("Uploading...");
                         }
                         if(dot % 4 == 3){
+                            modal.find('.modal-body #status_context').text("Uploading....");
+                        }
+                        setTimeout(worker, 500)
+                    }
+                    if (status == "file valid") {
+                        bar.style.width = '0%';
+                        if(dot % 4 == 0){
+                            modal.find('.modal-body #status_context').text("FlowMeter running.");
+                        }
+                        if(dot % 4 == 1){
+                            modal.find('.modal-body #status_context').text("FlowMeter running..");
+                        }
+                        if(dot % 4 == 2){
                             modal.find('.modal-body #status_context').text("FlowMeter running...");
+                        }
+                        if(dot % 4 == 3){
+                            modal.find('.modal-body #status_context').text("FlowMeter running....");
                         }
                         setTimeout(worker, 500)
                     }
                     if (status == "flmt") {
                         bar.style.width = '50%';
                         if(dot % 4 == 0){
-                            modal.find('.modal-body #status_context').text("FlowMeter finished!  Waiting for Joy running");
-                        }
-                        if(dot % 4 == 1){
                             modal.find('.modal-body #status_context').text("FlowMeter finished!  Waiting for Joy running.");
                         }
-                        if(dot % 4 == 2){
+                        if(dot % 4 == 1){
                             modal.find('.modal-body #status_context').text("FlowMeter finished!  Waiting for Joy running..");
                         }
-                        if(dot % 4 == 3){
+                        if(dot % 4 == 2){
                             modal.find('.modal-body #status_context').text("FlowMeter finished!  Waiting for Joy running...");
+                        }
+                        if(dot % 4 == 3){
+                            modal.find('.modal-body #status_context').text("FlowMeter finished!  Waiting for Joy running....");
                         }
                         setTimeout(worker, 500)
                     }
@@ -136,10 +152,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     
-<form action="/result" method="POST" enctype="multipart/form-data">
-    <input type="file" accept=".pcap" name="upload" id="upload">
+<form id="uploadform" enctype="multipart/form-data">
+    <input id="upload" type="file" accept=".pcap" name="upload">
     <p>Drag your files here or click in this area.</p>
-    <button type="submit" class="btn btn-primary" data-toggle="modal" data-target="#myModal" data-backdrop="static" data-keyboard="false" onclick="check_progress()">Upload</button>
+    <button id="btnUploadFile" type="submit" class="btn btn-primary" data-toggle="modal" data-target="#myModal" data-backdrop="static" data-keyboard="false">Upload</button>
      <!-- The Modal -->
   <div class="modal fade" id="myModal">
     <div class="modal-dialog modal-dialog-centered">
@@ -160,5 +176,45 @@
       </div>
     </div>
   </div>
-      </form>
+</form>
+<script>
+ //## 按下上傳按鈕觸發
+        $("form#uploadform").submit(function(e) {
+            e.preventDefault();    
+            var formData = new FormData(this);
+            console.log(formData)
+            //## 透過ajax方式Post 至Action
+            check_progress();
+            
+            var ajaxRequest = $.ajax({
+                
+                type: "POST",
+                url:"/checkvalid/{{thread_id}}",
+                contentType: false,         // 告诉jQuery不要去這置Content-Type
+                processData: false,         // 告诉jQuery不要去處理發送的數據 
+                data: formData,
+                
+                success: function (result) {
+                if (result == "file valid"){
+                    window.location = "/result/{{thread_id}}";
+                }
+                else if(result == "file not valid"){
+                    alert("your file is not valid");
+                    $('#myModal').modal('hide');
+                    $(".modal-backdrop").remove();
+                    $('form p').text('Drag your files here or click in this area.');
+                }
+                else{
+                    alert("error");
+                    $("#upload").val('');
+                    $('form p').text('Drag your files here or click in this area.');
+                }
+                },
+            })
+            .fail(function() {
+                alert( "upload failed" );
+            });
+            
+        });
+</script>
 {% endblock %}
