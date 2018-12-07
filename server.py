@@ -12,16 +12,6 @@ import threading
 from S2P import P2P
 from flmt_predict import predict
 from keras.models import load_model
-from mongokit import Connection, Document
-
-
-IDSet = set()
-dir_name = "CSV"
-#csv_dir = tempfile.mkdtemp()
-
-server = Flask(__name__)
-model = load_model("./model/model-00002-0.98101-0.06041.h5")
-model2 = load_model("./model/model-00001-0.98077-0.06064.h5")
 
 class ExportingThread(threading.Thread):
     def __init__(self):
@@ -42,35 +32,31 @@ class ExportingThread(threading.Thread):
 
 exporting_threads = {}
 thread_id = 0
-    
-# configuration
-MONGODB_HOST = 'localhost'
-MONGODB_PORT = 27017
 
 # create the little application object
 server = Flask(__name__)
 server.config.from_object(__name__)
 
-# connect to the database
-connection = Connection(server.config['MONGODB_HOST'],
-                        server.config['MONGODB_PORT'])
+class Record:
+    def __init__(self):
+        self.history_list = []
+    def insert(self, ID, joy_flow_num, flmt_flow_num, time):
+        self.history_list.append({'ID': ID, 'joy_flow_num': joy_flow_num, 'flmt_flow_num': flmt_flow_num, 'time': time})
+    def find(self, ID):
+        if list(filter(lambda h: h['ID'] == ID, self.history_list)) != []:
+            return True
+        else:
+            return False
+    def findall(self):
+        return self.history_list
+    
+dir_name = "CSV"
+record = Record()
 
-# to clear the database
-connection.test_db.drop_collection('test_col')
-
-@connection.register
-class Record(Document):
-    __collection__ = 'test_col'
-    __database__ = 'test_db'
-    structure = {
-        'ID': str,
-        'joy_flow_num': int,
-        'flmt_flow_num': int,
-        'time': str,
-    }
-    use_dot_notation = True
-
-
+server = Flask(__name__)
+model = load_model("./model/model-00002-0.98101-0.06041.h5")
+model2 = load_model("./model/model-00001-0.98077-0.06064.h5")
+            
 def valid_name(name):
     return all(c in string.hexdigits for c in name)
 
@@ -136,7 +122,7 @@ def checkvalid(thread_id):
             #return str(exporting_threads[thread_id].get_status())
         else:
             ID = hashlib.sha256(content).hexdigest()
-            print(connection.Record.find())
+            #print(connection.Record.find())
             exporting_threads[thread_id].update('file valid')
             with open(dir_name + '/' + ID + '.pcap', 'wb') as file:
                 file.write(content)
@@ -162,38 +148,10 @@ def result(thread_id):
     joy_dp = []
     joy_pr = []
     joy_flow_num = len(joy_label)
-    '''
-        print(request.files.get('upload'))
-        print(dir_name)
-        if request.files.get('upload') != None:
-            
-            global exporting_threads
-            global thread_id
-            
-            upload = request.files.get('upload')
-            content = upload.read()
-            if not Check_Valid(content):
-                print("file not valid")
-                return
-                
-            ID = hashlib.sha256(content).hexdigest()
-            
-            print(connection.Record.find())
-            if connection.Record.find_one() is not None and connection.Record.find_one({"ID":ID}) is not None:
-                return redirect('results/'+ ID)
-            
-            #IDSet.add(ID)
-            #upload.save(dir_name + '/' + ID)
-            with open(dir_name + '/' + ID + '.pcap', 'wb') as file:
-                file.write(content)
-            file_dir_name = str(dir_name + '/' +
-                                ID + '.pcap')
-            print('file_dir_name: '+file_dir_name)
-            print('dir_name: '+ dir_name)
-    '''
+
     global exporting_threads
     ID = exporting_threads[thread_id].get_ID()
-    if connection.Record.find_one() is not None and connection.Record.find_one({"ID":ID}) is not None:
+    if record.find(ID):
         return redirect('results/'+ ID)
     file_dir_name = dir_name + '/' + ID + '.pcap'
     flmt_df = flowmeter_result(file_dir_name, ID ,model ,model2)
@@ -224,14 +182,8 @@ def result(thread_id):
     flmt_dp = flmt_df['Dst Port'].tolist()
     flmt_pr = flmt_df['Protocol'].tolist()
     flmt_flow_num = len(flmt_sa)
-            
- 
-    record = connection.Record()
-    record['ID'] = ID
-    record['joy_flow_num'] = joy_flow_num
-    record['flmt_flow_num'] = flmt_flow_num
-    record['time'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    record.save()
+    
+    record.insert(ID, joy_flow_num, flmt_flow_num, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
             
     #print(joy_df)
     return redirect('results/'+ ID)
@@ -245,7 +197,7 @@ def results(ID=""):
     if not valid_name(ID) or ID == "":
         return "Invalid Query"
     #if ID not in IDSet:
-    if connection.Record.find_one({"ID":ID}) is None:
+    if not record.find(ID):
         return "Invalid Query"
     else:
         joy_df = pd.read_json(dir_name + '/' + ID + '_joy', compression = 'gzip')
@@ -290,15 +242,11 @@ def secret():
     for ID in IDSet:
         a += ID + '\n'
     return a
-# should be delete  
-@server.route('/secret2')
-def secret2():
-    return str(list(connection.Record.find()))
 
 
 @server.route('/history')
 def history():
-    query = list(connection.Record.find())
+    query = record.findall()
     print(query)
     if len(query) is not 0:
         df = pd.DataFrame(query)
