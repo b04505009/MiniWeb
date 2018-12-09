@@ -10,8 +10,9 @@ import pandas as pd
 import datetime
 import threading
 from S2P import P2P
-from flmt_predict import predict
+from flmt_predict import flowmeter_result
 from keras.models import load_model
+import tensorflow as tf
 
 class ExportingThread(threading.Thread):
     def __init__(self):
@@ -33,6 +34,12 @@ class ExportingThread(threading.Thread):
 exporting_threads = {}
 thread_id = 0
 
+
+model1 = load_model("./model/model-00002-0.98101-0.06041.h5")
+graph1 = tf.get_default_graph()
+model2 = load_model("./model/model-00001-0.98077-0.06064.h5")
+graph2 = tf.get_default_graph()
+
 # create the little application object
 server = Flask(__name__)
 server.config.from_object(__name__)
@@ -51,11 +58,11 @@ class Record:
         return self.history_list
     
 dir_name = "CSV"
+if not os.path.exists("./CSV"):
+    os.makedirs("./CSV")
 record = Record()
 
 server = Flask(__name__)
-model = load_model("./model/model-00002-0.98101-0.06041.h5")
-model2 = load_model("./model/model-00001-0.98077-0.06064.h5")
             
 def valid_name(name):
     return all(c in string.hexdigits for c in name)
@@ -154,7 +161,7 @@ def result(thread_id):
     if record.find(ID):
         return redirect('results/'+ ID)
     file_dir_name = dir_name + '/' + ID + '.pcap'
-    flmt_df = flowmeter_result(file_dir_name, ID ,model ,model2)
+    flmt_df = flowmeter_result(file_dir_name, ID ,model1 ,model2, graph1, graph2)
     flmt_df.to_json(dir_name + '/' + ID + '_flmt', compression = 'gzip')
     print("flowmeter good")
     exporting_threads[thread_id].update("flmt")
@@ -260,17 +267,5 @@ def history():
         return render_template('history.html',ID=[],joy_flow_num=[],flmt_flow_num=[],time = [],history_num=0)
         
 
-
-def flowmeter_result(file_dir_name, ID,model,model2):
-    p = subprocess.Popen('java -Djava.library.path=CICFlowMeter-Command/jnetpcap-1.4.r1425 -jar CICFlowMeter-Command/CICFlowMeter.jar -pcappath ' +
-                         file_dir_name + ' -outdir ' + dir_name + '/', shell=True)
-    p.wait()
-    df = pd.read_csv(dir_name + '/' + ID + '.pcap_Flow.csv')
-    df = predict(df,model,model2)
-    #df = df[[,'Src IP','Dst IP','Src Port','Dst Port','Protocol']]
-    #print(df['Flow ID'])
-    return df
-
-
 #server.run(port=5000, debug=True)
-server.run(host="192.168.21.2", port=5000, debug=True)
+server.run(host="0.0.0.0", debug=True)

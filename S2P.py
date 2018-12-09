@@ -7,6 +7,7 @@ from Table_Generator import Generator
 from sklearn.externals import joblib
 import argparse
 import os
+import subprocess
 
 def S2P(path):
     if(not os.path.exists('./tmp')):
@@ -26,9 +27,10 @@ def P2P(path):
     
     filename1 = "./tmp/joy.gz"       
     filename2 = "./tmp/sleuth.json"
-    os.system("../joy/bin/joy classify=1 tls=1 dns=1 http=1 bidir=1 idp=16 dist=1 entropy=1 {0} > {1}".format(path, filename1))
-    os.system("../joy/sleuth {0} > {1}".format(filename1, filename2))
-        
+    p = subprocess.Popen("../joy/bin/joy classify=1 tls=1 dns=1 http=1 bidir=1 idp=16 dist=1 entropy=1 {0} > {1}".format(path, filename1),shell = True)
+    p.wait()
+    p = subprocess.Popen("../joy/sleuth {0} > {1}".format(filename1, filename2), shell=True)
+    p.wait()
         ###Sleuth2Predict
     y = S2P(filename2)
     df = pd.read_csv("./tmp/table.csv");
