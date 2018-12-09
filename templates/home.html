@@ -1,31 +1,35 @@
-{% extends "base.html" %}
-<script>
-    document.getElementById("navbar_home").className = "active";
-</script> {% block content %}
-<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
-<style type="text/css">
-<!--
-.Aligner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width:100%;
-    height:90%;
-    position: absolute;
-}
-img {
-    height: auto;
-    max-width: 300px;
- }
+{% extends "base.html" %} {% block content %}
 
--->
-</style>     
+<head>
+    <script>
+        document.getElementById("navbar_home").className = "active";
+    </script>
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+    <style type="text/css">
+        .Aligner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 90%;
+            position: absolute;
+        }
+        
+        img {
+            height: auto;
+            max-width: 300px;
+        }
+    </style>
+</head>
 
+<body>
     <div class="Aligner flex-fill">
-		<div><img src="../static/image/LOGOO.png" class="img-responsive"></div>
-
+        <div><img src="../static/image/LOGOO.png" class="img-responsive"></div>
         <div style="font-size:xx-large"><b>LOGOO Protect ALL Packet</b></div>
-        <div style="font-size:large"><p>this web is developed by ESOE</p></div>
-        </div>   
+        <div style="font-size:large">
+            <p>this web is developed by ESOE</p>
+        </div>
+    </div>
+</body>
 {% endblock %}

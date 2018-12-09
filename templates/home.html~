@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+<script>
+    document.getElementById("navbar_home").className = "active";
+</script> {% block content %}
+<style type="text/css">
+<!--
+#DIV_LOGO{
+	position:absolute;
+	top:25%;
+	left:38%;
+}
+-->
+</style>
+
+<div id="DIV_LOGO" align="center" valign = "center">
+		<img src="../static/image/LOGOO.png" width="250"/>
+		<p><font size="6"><b>LOGOO Protect ALL Packet</b></font></p>
+		<p><font size="3">this web is develop by ESOE</font></p>
+</div>
+{% endblock %}
