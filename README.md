@@ -11,10 +11,11 @@ We evaluate the flow by
 
 ## Dependency
 - *Flask==1.0.2*
+- Other packages version are specified in requirements.txt
 
 
 ## Install
-`./joyInstall.sh`
+`./install.sh`
 
 ## Usage
 `python3 server.py`
