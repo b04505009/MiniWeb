@@ -8,3 +8,4 @@ sudo apt-get install build-essential libssl-dev libpcap-dev libcurl4-openssl-dev
 make
 popd
 popd
+tar -zxvf model.tar.gz
