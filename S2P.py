@@ -10,13 +10,6 @@ import os
 import subprocess
 
 def S2P(path):
-    if(not os.path.exists('./tmp')):
-        os.mkdir('./tmp')
-    else:
-        if(os.path.exists('./tmp/table.csv')):
-            os.remove('./tmp/table.csv')
-        if(os.path.exists('./tmp/test.csv')):
-            os.remove('./tmp/test.csv')
     Generator(path)
     toTest()
     y = Predict()
@@ -24,6 +17,13 @@ def S2P(path):
     #print(df[1])
     return df[1]
 def P2P(path):
+    if(not os.path.exists('./tmp')):
+        os.mkdir('./tmp')
+    else:
+        if(os.path.exists('./tmp/table.csv')):
+            os.remove('./tmp/table.csv')
+        if(os.path.exists('./tmp/test.csv')):
+            os.remove('./tmp/test.csv')
     
     filename1 = "./tmp/joy.gz"       
     filename2 = "./tmp/sleuth.json"
