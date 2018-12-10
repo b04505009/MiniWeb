@@ -244,14 +244,6 @@ def results(ID=""):
             flmt_pr=flmt_pr,
             flmt_flow_num=flmt_flow_num)
 
-# should be delete  
-@server.route('/secret')
-def secret():
-    a = ""
-    for ID in IDSet:
-        a += ID + '\n'
-    return a
-
 
 @server.route('/history')
 def history():

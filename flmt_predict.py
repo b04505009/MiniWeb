@@ -15,7 +15,7 @@ def flowmeter_result(file_dir_name, ID,model1, model2, graph1, graph2, scaler):
     p = subprocess.Popen('java -Djava.library.path=CICFlowMeter-Command/jnetpcap-1.4.r1425 -jar CICFlowMeter-Command/CICFlowMeter.jar -pcappath ' +
                          file_dir_name + ' -outdir ' + dir_name + '/', shell=True)
     p.wait()
-    df = pd.read_csv(dir_name + '/' + ID + '.pcap_Flow.csv')
+    data = pd.read_csv(dir_name + '/' + ID + '.pcap_Flow.csv')
     print(data.shape)
     df = pd.DataFrame(data)
     data = data.drop(['Flow ID', 'Src IP', 'Dst IP','Timestamp', 'Label', 'Src Port', 'Dst Port'], axis=1)

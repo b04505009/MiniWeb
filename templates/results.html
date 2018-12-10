@@ -16,6 +16,7 @@
     <div class="tab">
         <button class="tablinks" onclick="openModelResult(event, 'joy')" id="defaultOpen">Joy</button>
         <button class="tablinks" onclick="openModelResult(event, 'flmt')"><img src="https://upload.wikimedia.org/wikipedia/commons/8/8b/Orbot-logo.svg" width="25" height="25"> FlowMeter</button>
+        <button class="tablinks" onclick="openModelResult(event, 'app')">Application</button>
     </div>
 
     <!-- Tab content -->
@@ -60,7 +61,9 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
+                    <br>
                     <h4>Number of flows:{{flmt_flow_num}}</h4>
+                    <br>
                     <div class="table-responsive">
                         <table cellpadding="10" border='1' id="mytable" class="table table-bordered table-striped">
                             <thead>
@@ -90,7 +93,41 @@
             </div>
         </div>
     </div>
+ <!-- Tab content -->
+    <div id="app" class="tabcontent">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <h4>Number of flows:{{flmt_flow_num}}</h4>
+                    <div class="table-responsive">
+                        <table cellpadding="10" border='1' id="mytable" class="table table-bordered table-striped">
+                            <thead>
+                                <th>Most probable application</th>
+                                <th>Source IP</th>
+                                <th>Desination IP</th>
+                                <th>Source Port</th>
+                                <th>Desination Port</th>
+                                <th>Protocol</th>
+                            </thead>
+                            {%for i in range(flmt_flow_num)%}
+                            <tbody>
+                                <tr>
+                                    <td>{{flmt_label[i]}}</td>
+                                    <td>{{flmt_sa[i]}}</td>
+                                    <td>{{flmt_da[i]}}</td>
+                                    <td>{{flmt_sp[i]}}</td>
+                                    <td>{{flmt_dp[i]}}</td>
+                                    <td>{{flmt_pr[i]}}</td>
+                                </tr>
+                            </tbody>
+                            {% endfor %}
+                        </table>
 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {% else %}
     <h1>nothing</h1>
