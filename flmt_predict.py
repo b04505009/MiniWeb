@@ -30,6 +30,7 @@ def flowmeter_result(file_dir_name, ID,model1, model2, graph1, graph2, scaler):
     pred = pd.DataFrame(pred)
     pred.columns = ['tor label']
     result = pd.concat([pred, df], axis=1)
+    result = result[~(result.Protocol == 0)]
     return result
 
 

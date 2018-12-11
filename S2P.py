@@ -33,7 +33,9 @@ def P2P(path):
     p.wait()
         ###Sleuth2Predict
     y = S2P(filename2)
-    df = pd.read_csv("./tmp/table.csv");
+    df = pd.read_csv("./tmp/table.csv").drop(['Unnamed: 0'],axis=1);
+    df['sp'] = df['sp'].fillna(0).astype(int)
+    df['dp'] = df['dp'].fillna(0).astype(int)
     df['label'] = y;
     #print('Score:')
     #print(y)

@@ -38,12 +38,12 @@ function check_progress() {
             }
             if (status == "file valid") {
                 bar.style.width = '0%';
-                modal.find('.modal-body #status_context').text("FlowMeter running." + ".".repeat(dot));
+                modal.find('.modal-body #status_context').text("Flowmeter running." + ".".repeat(dot));
                 setTimeout(worker, 500)
             }
             if (status == "flmt") {
                 bar.style.width = '50%';
-                modal.find('.modal-body #status_context').text("FlowMeter finished!  Waiting for Joy running." + ".".repeat(dot));
+                modal.find('.modal-body #status_context').text("Flowmeter finished!  Waiting for Joy running." + ".".repeat(dot));
                 setTimeout(worker, 500)
             }
             if (status == "joy") {

@@ -1,7 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory
 import os
 from werkzeug.utils import secure_filename
-import tempfile
 import hashlib
 import string
 import sys
@@ -14,6 +13,12 @@ from flmt_predict import flowmeter_result
 from keras.models import load_model
 import tensorflow as tf
 from sklearn.externals import joblib
+from bokeh.embed import components
+from bokeh.plotting import figure
+from bokeh.resources import INLINE
+from bokeh.transform import cumsum
+from math import pi
+
 
 class ExportingThread(threading.Thread):
     def __init__(self):
@@ -62,8 +67,18 @@ class Record:
 dir_name = "CSV"
 if not os.path.exists("./CSV"):
     os.makedirs("./CSV")
+    
 record = Record()
-
+for csv in os.listdir("./CSV"):
+    if csv.endswith("flmt.csv"):
+        ID = csv.split('_', 1)[0];
+        flmt_df = pd.read_csv("./CSV/" + csv)
+        flmt_flow_num = flmt_df.shape[0]
+        joy_df = pd.read_csv("./CSV/" + ID + "_joy.csv")
+        joy_flow_num = joy_df.shape[0]
+        
+        record.insert(ID, joy_flow_num, flmt_flow_num, "Unknown")
+print(record.findall())
 server = Flask(__name__)
             
 def valid_name(name):
@@ -147,50 +162,25 @@ def checkvalid(thread_id):
 
 @server.route('/result/<int:thread_id>', methods=['GET'])
 def result(thread_id):
-    classifier_names = [
-        'label(score)', 'sa', 'da', 'sp', 'dp', 'pr', 'pkt_in', 'pkt_out'
-    ]
-    joy_label = []
-    joy_sa = []
-    joy_da = []
-    joy_sp = []
-    joy_dp = []
-    joy_pr = []
-    joy_flow_num = len(joy_label)
-
     global exporting_threads
     ID = exporting_threads[thread_id].get_ID()
     if record.find(ID):
         return redirect('results/'+ ID)
     file_dir_name = dir_name + '/' + ID + '.pcap'
     flmt_df = flowmeter_result(file_dir_name, ID ,model1 ,model2, graph1, graph2, scaler)
-    flmt_df.to_json(dir_name + '/' + ID + '_flmt', compression = 'gzip')
+    flmt_df.to_csv(dir_name + '/' + ID + '_flmt.csv',sep=',', encoding='utf-8',index = False)
     print("flowmeter good")
     exporting_threads[thread_id].update("flmt")
     joy_df = P2P(file_dir_name)
-    joy_df.to_json(dir_name + '/' + ID + '_joy', compression = 'gzip')
+    joy_df.to_csv(dir_name + '/' + ID + '_joy.csv',sep=',', encoding='utf-8',index = False)
     print("joy good")
     exporting_threads[thread_id].update("joy")
              
     os.remove(dir_name + '/' + ID + '.pcap')
     os.remove(dir_name + '/' + ID + '.pcap_Flow.csv')
-            
 
-    joy_label = joy_df['label'].tolist()
-    joy_sa = joy_df['sa'].tolist()
-    joy_da = joy_df['da'].tolist()
-    joy_sp = joy_df['sp'].tolist()
-    joy_dp = joy_df['dp'].tolist()
-    joy_pr = joy_df['pr'].tolist()
-    joy_flow_num = len(joy_label)
-
-    flmt_label = flmt_df['tor label'].round(2).tolist()
-    flmt_sa = flmt_df['Src IP'].tolist()
-    flmt_da = flmt_df['Dst IP'].tolist()
-    flmt_sp = flmt_df['Src Port'].tolist()
-    flmt_dp = flmt_df['Dst Port'].tolist()
-    flmt_pr = flmt_df['Protocol'].tolist()
-    flmt_flow_num = len(flmt_sa)
+    joy_flow_num = joy_df.shape[0]
+    flmt_flow_num = flmt_df.shape[0]
     
     record.insert(ID, joy_flow_num, flmt_flow_num, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
             
@@ -209,8 +199,8 @@ def results(ID=""):
     if not record.find(ID):
         return "Invalid Query"
     else:
-        joy_df = pd.read_json(dir_name + '/' + ID + '_joy', compression = 'gzip')
-        flmt_df = pd.read_json(dir_name + '/' + ID + '_flmt', compression = 'gzip')
+        joy_df = pd.read_csv(dir_name + '/' + ID + '_joy.csv')
+        flmt_df = pd.read_csv(dir_name + '/' + ID + '_flmt.csv')
 
         joy_label = joy_df['label'].tolist()
         joy_sa = joy_df['sa'].tolist()
@@ -226,6 +216,53 @@ def results(ID=""):
         flmt_dp = flmt_df['Dst Port'].tolist()
         flmt_pr = flmt_df['Protocol'].tolist()
         flmt_flow_num = len(flmt_sa)
+        
+        # joy pie chart
+        joy_m = len([i for i in joy_label if i > 0.8])
+        joy_b = joy_flow_num - joy_m
+        data = pd.Series([joy_b, joy_m], index=['benign', 'malign']).reset_index(name='value').rename(columns={'index': 'class'})
+        data['angle'] = data['value']/data['value'].sum() * 2 * pi
+        data['color'] = ['blue', 'red']
+
+        p = figure(plot_height=350, plot_width=500, title="Malicious flows identified by Joy features", toolbar_location=None,
+                   tools="hover", tooltips="@class: @value",  x_range = (-0.5, 1.0))
+        p.wedge(x=0, y=1, radius=0.4,
+                start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
+                line_color="white", fill_color='color', legend='class', source=data)
+        p.axis.axis_label = None
+        p.axis.visible = False
+        p.grid.grid_line_color = None
+        p.title.text_font_size = '18pt'
+        p.title.align = 'center'
+        p.outline_line_color = None
+        p.outline_line_width = 0
+        joy_js_resources = INLINE.render_js()
+        joy_css_resources = INLINE.render_css()
+        joy_script, joy_div = components(p)
+        
+        # flmt pie chart
+        flmt_t = len([i for i in flmt_label if i > 0.5])
+        flmt_nt = flmt_flow_num - flmt_t
+        data = pd.Series([flmt_nt, flmt_t], index=['Non tor', 'tor']).reset_index(name='value').rename(columns={'index': 'class'})
+        data['angle'] = data['value']/data['value'].sum() * 2 * pi
+        data['color'] = ['limegreen', 'purple']
+
+        p = figure(plot_height=350, plot_width=500, title="Tor flows identified by Flowmeter features", toolbar_location=None,
+                   tools="hover", tooltips="@class: @value",  x_range = (-0.5, 1.0))
+        p.wedge(x=0, y=1, radius=0.4,
+                start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
+                line_color="white", fill_color='color', legend='class', source=data)
+        p.axis.axis_label = None
+        p.axis.visible = False
+        p.grid.grid_line_color = None
+        p.title.text_font_size = '18pt'
+        p.title.align = 'center'
+        p.outline_line_color = None
+        p.outline_line_width = 0
+        flmt_js_resources = INLINE.render_js()
+        flmt_css_resources = INLINE.render_css()
+        flmt_script, flmt_div = components(p)
+         
         return render_template(
             'results.html',
             ID=ID,
@@ -242,7 +279,16 @@ def results(ID=""):
             flmt_sp=flmt_sp,
             flmt_dp=flmt_dp,
             flmt_pr=flmt_pr,
-            flmt_flow_num=flmt_flow_num)
+            flmt_flow_num=flmt_flow_num,
+            joy_js_resources = joy_js_resources,
+            joy_css_resources = joy_css_resources,
+            joy_script = joy_script,
+            joy_div = joy_div,
+            flmt_js_resources = flmt_js_resources,
+            flmt_css_resources = flmt_css_resources,
+            flmt_script = flmt_script,
+            flmt_div = flmt_div
+        )
 
 
 @server.route('/history')
@@ -259,6 +305,10 @@ def history():
         return render_template('history.html',ID=ID,joy_flow_num=joy_flow_num,flmt_flow_num=flmt_flow_num,time = time,history_num=history_num)
     else:
         return render_template('history.html',ID=[],joy_flow_num=[],flmt_flow_num=[],time = [],history_num=0)
+    
+@server.route('/download/<tab>/<ID>', methods=['GET', 'POST'])
+def download(tab,ID):
+    return send_from_directory(directory=os.path.join(server.root_path, "CSV/"), filename=ID+"_"+tab+".csv",as_attachment=True)
         
 
 #server.run(port=5000, debug=True)

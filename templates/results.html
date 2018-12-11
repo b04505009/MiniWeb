@@ -1,71 +1,61 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %} {% set active_page = "upload" %}{% block content %}
 
 <head>
     <link rel="stylesheet" type="text/css" href="../static/css/results.css">
     <script type="text/javascript" src="../static/js/script.js"></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+    {{ joy_js_resources|indent(4)|safe }}
+    {{ joy_css_resources|indent(4)|safe }}
+    {{ joy_script|indent(4)|safe }}
+    {{ flmt_js_resources|indent(4)|safe }}
+    {{ flmt_css_resources|indent(4)|safe }}
+    {{ flmt_script|indent(4)|safe }}
+    <script>
+        $(document).ready(function() {
+            $('#joytable').DataTable();
+            $('#flmttable').DataTable();
+            $('#apptable').DataTable();
+        });
+    </script>
 </head>
 
 <body>
     {% if ID %}
     <div class="tab">
-        <button class="tablinks" onclick="openModelResult(event, 'joy')" id="defaultOpen">Joy</button>
-        <button class="tablinks" onclick="openModelResult(event, 'flmt')"><img src="https://upload.wikimedia.org/wikipedia/commons/8/8b/Orbot-logo.svg" width="25" height="25"> FlowMeter</button>
+                <button class="tablinks" onclick="openModelResult(event, 'flmt')" id="defaultOpen"><img src="https://upload.wikimedia.org/wikipedia/commons/8/8b/Orbot-logo.svg" width="25" height="25"> FlowMeter</button>
+        <button class="tablinks" onclick="openModelResult(event, 'joy')"><img src="../static/image/malware_icon.gif" width="25" height="25"> Joy</button>
         <button class="tablinks" onclick="openModelResult(event, 'app')">Application</button>
     </div>
 
     <!-- Tab content -->
-    <div id="joy" class="tabcontent">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <br>
-                    <h4>Number of flows:{{joy_flow_num}}</h4>
-                    <br>
-                    <div class="table-responsive">
-                        <table cellpadding="10" border='1' id="mytable" class="table table-bordered table-striped">
-                            <thead>
-                                <th>malware label(score)</th>
-                                <th>Source IP</th>
-                                <th>Desination IP</th>
-                                <th>Source Port</th>
-                                <th>Desination Port</th>
-                                <th>Protocol</th>
-                            </thead>
-                            {%for i in range(joy_flow_num)%}
-                            <tbody>
-                                <tr>
-                                    <td>{{joy_label[i]}}</td>
-                                    <td>{{joy_sa[i]}}</td>
-                                    <td>{{joy_da[i]}}</td>
-                                    <td>{{joy_sp[i]}}</td>
-                                    <td>{{joy_dp[i]}}</td>
-                                    <td>{{joy_pr[i]}}</td>
-                                </tr>
-                            </tbody>
-                            {% endfor %}
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tab content -->
     <div id="flmt" class="tabcontent">
+
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
                     <br>
                     <h4>Number of flows:{{flmt_flow_num}}</h4>
                     <br>
+                            <div align="center">
+         {{ flmt_div|indent(4)|safe }}
+        </div>
+                                        <br>
+                    <div align="center">
+                    <a href="/download/flmt/{{ID}}">
+                        <button type="submit" class="btn btn-primary"><img src="../static/image/download.svg" width="25" height="25"> Download full csv</button>
+                    </a> 
+                    </div>
+                    <br>
                     <div class="table-responsive">
-                        <table cellpadding="10" border='1' id="mytable" class="table table-bordered table-striped">
+                        <table cellpadding="10" border='1' id="flmttable" class="table table-bordered table-striped">
                             <thead>
                                 <th>tor label(score)</th>
                                 <th>Source IP</th>
@@ -74,8 +64,9 @@
                                 <th>Desination Port</th>
                                 <th>Protocol</th>
                             </thead>
-                            {%for i in range(flmt_flow_num)%}
+                            
                             <tbody>
+                                {%for i in range(flmt_flow_num)%}
                                 <tr>
                                     <td>{{flmt_label[i]}}</td>
                                     <td>{{flmt_sa[i]}}</td>
@@ -84,8 +75,9 @@
                                     <td>{{flmt_dp[i]}}</td>
                                     <td>{{flmt_pr[i]}}</td>
                                 </tr>
+                                {% endfor %}
                             </tbody>
-                            {% endfor %}
+                            
                         </table>
 
                     </div>
@@ -93,14 +85,66 @@
             </div>
         </div>
     </div>
+        <!-- Tab content -->
+    <div id="joy" class="tabcontent">
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <br>
+                    <h4>Number of flows:{{joy_flow_num}}</h4>
+                    <br>
+                    <div align="center">
+                     {{ joy_div|indent(4)|safe }}
+                    </div>
+                    <br>
+                    <div align="center">
+                    <a href="/download/joy/{{ID}}">
+                        <button type="submit" class="btn btn-primary"><img src="../static/image/download.svg" width="25" height="25"> Download full csv</button>
+                    </a> 
+                    </div>
+                    <br>
+                    <div class="table-responsive">
+                        <table cellpadding="10" border='1' id="joytable" class="table table-bordered table-striped">
+                            <thead>
+                                <th>malware label(score)</th>
+                                <th>Source IP</th>
+                                <th>Desination IP</th>
+                                <th>Source Port</th>
+                                <th>Desination Port</th>
+                                <th>Protocol</th>
+                            </thead>
+                            
+                            <tbody>
+                                {%for i in range(joy_flow_num)%}
+                                <tr>
+                                    <td>{{joy_label[i]}}</td>
+                                    <td>{{joy_sa[i]}}</td>
+                                    <td>{{joy_da[i]}}</td>
+                                    <td>{{joy_sp[i]}}</td>
+                                    <td>{{joy_dp[i]}}</td>
+                                    <td>{{joy_pr[i]}}</td>
+                                </tr>
+                                 {% endfor %}
+                            </tbody>
+                           
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
  <!-- Tab content -->
     <div id="app" class="tabcontent">
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
+                    <br>
                     <h4>Number of flows:{{flmt_flow_num}}</h4>
+                    <br>
                     <div class="table-responsive">
-                        <table cellpadding="10" border='1' id="mytable" class="table table-bordered table-striped">
+                        <table cellpadding="10" border='1' id="apptable" class="table table-bordered table-striped">
                             <thead>
                                 <th>Most probable application</th>
                                 <th>Source IP</th>
@@ -109,8 +153,8 @@
                                 <th>Desination Port</th>
                                 <th>Protocol</th>
                             </thead>
-                            {%for i in range(flmt_flow_num)%}
                             <tbody>
+                                {%for i in range(flmt_flow_num)%}
                                 <tr>
                                     <td>{{flmt_label[i]}}</td>
                                     <td>{{flmt_sa[i]}}</td>
@@ -119,8 +163,9 @@
                                     <td>{{flmt_dp[i]}}</td>
                                     <td>{{flmt_pr[i]}}</td>
                                 </tr>
+                                {% endfor %}
                             </tbody>
-                            {% endfor %}
+
                         </table>
 
                     </div>
@@ -136,7 +181,6 @@
         <button type="submit" class="btn btn-primary">Back</button>
     </form>
     <script>
-        // Get the element with id="defaultOpen" and click on it
         document.getElementById("defaultOpen").click();
     </script>
 </body>
