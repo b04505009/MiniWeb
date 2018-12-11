@@ -3,26 +3,26 @@ import numpy as np
 import pandas as pd
 import sys
 from toTest12 import toTest12
-from Table_Generator import Generator
-from sklearn.externals import joblib
+from Table_Generator12 import Generator
+#from sklearn.externals import joblib
 import argparse
 import os
 import subprocess
 import xgboost as xgb
 
 def S2P12(path):
-    #Generator(path)
+    Generator(path)
     toTest12()
     y = Predict12()
     df = pd.DataFrame(y)
-    #print(df[1])
-    return df[1]
+    print(df)
+    return df[0]
 def P2P12(path):
     if(not os.path.exists('./tmp')):
         os.mkdir('./tmp')
     else:
-        if(os.path.exists('./tmp/table.csv')):
-            os.remove('./tmp/table.csv')
+        if(os.path.exists('./tmp/table12.csv')):
+           os.remove('./tmp/table12.csv')
         if(os.path.exists('./tmp/test12.csv')):
             os.remove('./tmp/test12.csv')
     
@@ -34,7 +34,7 @@ def P2P12(path):
     #p.wait()
         ###Sleuth2Predict
     y = S2P12(filename2)
-    df = pd.read_csv("./tmp/table.csv").drop(['Unnamed: 0'],axis=1);
+    df = pd.read_csv("./tmp/table12.csv")
     df['sp'] = df['sp'].fillna(0).astype(int)
     df['dp'] = df['dp'].fillna(0).astype(int)
     df['label'] = y;
@@ -60,7 +60,7 @@ if __name__ == "__main__":
     
     parser = argparse.ArgumentParser(description='Making Traffic Table')
     parser.add_argument('--source_data_path', type=str,
-                        default='youtube1.pcap', dest='source_data_path',
+                        default='sample.pcap', dest='source_data_path',
                         help='Path to source data')
     parser.add_argument('--output_path', type=str,
                         default='./tmp/table.csv', dest='output_path',
@@ -79,3 +79,4 @@ if __name__ == "__main__":
     #print(df[1])
     #print(y[1:5][])
     print(y)
+    print(y.label)
