@@ -9,14 +9,14 @@ import argparse
 import os
 import subprocess
 
-def S2P(path):
+def S2P(path, model):
     Generator(path)
     toTest()
-    y = Predict()
+    y = Predict(model)
     df = pd.DataFrame(y)
     #print(df[1])
     return df[1]
-def P2P(path):
+def P2P(path, model):
     if(not os.path.exists('./tmp')):
         os.mkdir('./tmp')
     else:
@@ -32,7 +32,7 @@ def P2P(path):
     p = subprocess.Popen("../joy/sleuth {0} > {1}".format(filename1, filename2), shell=True)
     p.wait()
         ###Sleuth2Predict
-    y = S2P(filename2)
+    y = S2P(filename2, model)
     df = pd.read_csv("./tmp/table.csv").drop(['Unnamed: 0'],axis=1);
     df['sp'] = df['sp'].fillna(0).astype(int)
     df['dp'] = df['dp'].fillna(0).astype(int)
@@ -42,8 +42,8 @@ def P2P(path):
     return df
 
 
-def Predict():
-    model = joblib.load('model/RF.pkl')
+def Predict(model):
+    #model = joblib.load('model/RF.pkl')
     df = pd.read_csv('tmp/test.csv')
     X_test = df.values
     print('Predicting...')
@@ -74,4 +74,4 @@ if __name__ == "__main__":
     #df = pd.DataFrame(y)
     #print(df[1])
     #print(y[1:5][])
-    print(y)
+    print(y.label)

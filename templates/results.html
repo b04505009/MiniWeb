@@ -12,12 +12,15 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
-    {{ joy_js_resources|indent(4)|safe }}
-    {{ joy_css_resources|indent(4)|safe }}
-    {{ joy_script|indent(4)|safe }}
+    {{ joy_js_resources|indent(4)|safe }} 
+    {{ joy_css_resources|indent(4)|safe }} 
+    {{ joy_script|indent(4)|safe }} 
     {{ flmt_js_resources|indent(4)|safe }}
-    {{ flmt_css_resources|indent(4)|safe }}
-    {{ flmt_script|indent(4)|safe }}
+    {{ flmt_css_resources|indent(4)|safe }} 
+    {{ flmt_script|indent(4)|safe }} 
+    {{ app_js_resources|indent(4)|safe}} 
+    {{ app_css_resources|indent(4)|safe }} 
+    {{ app_script|indent(4)|safe }}
     <script>
         $(document).ready(function() {
             $('#joytable').DataTable();
@@ -30,9 +33,11 @@
 <body>
     {% if ID %}
     <div class="tab">
-                <button class="tablinks" onclick="openModelResult(event, 'flmt')" id="defaultOpen"><img src="https://upload.wikimedia.org/wikipedia/commons/8/8b/Orbot-logo.svg" width="25" height="25"> FlowMeter</button>
+        <button class="tablinks" onclick="openModelResult(event, 'flmt')" id="defaultOpen"><img src="https://upload.wikimedia.org/wikipedia/commons/8/8b/Orbot-logo.svg" width="25" height="25"> FlowMeter</button>
+
         <button class="tablinks" onclick="openModelResult(event, 'joy')"><img src="../static/image/malware_icon.gif" width="25" height="25"> Joy</button>
-        <button class="tablinks" onclick="openModelResult(event, 'app')">Application</button>
+
+        <button class="tablinks" onclick="openModelResult(event, 'app')"><img src="../static/image/app_icon.png" width="25" height="25"> Application</button>
     </div>
 
     <!-- Tab content -->
@@ -44,9 +49,10 @@
                     <br>
                     <h4>Number of flows:{{flmt_flow_num}}</h4>
                     <br>
-                            <div align="center">
-         {{ flmt_div|indent(4)|safe }}
-        </div>
+                    <div align="center">
+                        {{ flmt_div|indent(4)|safe }}
+                    </div>
+                    <!--
                                         <br>
                     <div align="center">
                     <a href="/download/flmt/{{ID}}">
@@ -54,6 +60,7 @@
                     </a> 
                     </div>
                     <br>
+-->
                     <div class="table-responsive">
                         <table cellpadding="10" border='1' id="flmttable" class="table table-bordered table-striped">
                             <thead>
@@ -64,20 +71,20 @@
                                 <th>Desination Port</th>
                                 <th>Protocol</th>
                             </thead>
-                            
+
                             <tbody>
                                 {%for i in range(flmt_flow_num)%}
                                 <tr>
-                                    <td>{{flmt_label[i]}}</td>
-                                    <td>{{flmt_sa[i]}}</td>
-                                    <td>{{flmt_da[i]}}</td>
-                                    <td>{{flmt_sp[i]}}</td>
-                                    <td>{{flmt_dp[i]}}</td>
-                                    <td>{{flmt_pr[i]}}</td>
+                                    <td>{{flmt_dict['tor label'][i]}}</td>
+                                    <td>{{flmt_dict['Src IP'][i]}}</td>
+                                    <td>{{flmt_dict['Dst IP'][i]}}</td>
+                                    <td>{{flmt_dict['Src Port'][i]}}</td>
+                                    <td>{{flmt_dict['Dst Port'][i]}}</td>
+                                    <td>{{flmt_dict['Protocol'][i]}}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
-                            
+
                         </table>
 
                     </div>
@@ -85,7 +92,8 @@
             </div>
         </div>
     </div>
-        <!-- Tab content -->
+
+    <!-- Tab content -->
     <div id="joy" class="tabcontent">
 
         <div class="container">
@@ -95,15 +103,17 @@
                     <h4>Number of flows:{{joy_flow_num}}</h4>
                     <br>
                     <div align="center">
-                     {{ joy_div|indent(4)|safe }}
+                        {{ joy_div|indent(4)|safe }}
                     </div>
                     <br>
+                    <!--
                     <div align="center">
                     <a href="/download/joy/{{ID}}">
                         <button type="submit" class="btn btn-primary"><img src="../static/image/download.svg" width="25" height="25"> Download full csv</button>
                     </a> 
                     </div>
                     <br>
+-->
                     <div class="table-responsive">
                         <table cellpadding="10" border='1' id="joytable" class="table table-bordered table-striped">
                             <thead>
@@ -114,20 +124,20 @@
                                 <th>Desination Port</th>
                                 <th>Protocol</th>
                             </thead>
-                            
+
                             <tbody>
                                 {%for i in range(joy_flow_num)%}
                                 <tr>
-                                    <td>{{joy_label[i]}}</td>
-                                    <td>{{joy_sa[i]}}</td>
-                                    <td>{{joy_da[i]}}</td>
-                                    <td>{{joy_sp[i]}}</td>
-                                    <td>{{joy_dp[i]}}</td>
-                                    <td>{{joy_pr[i]}}</td>
+                                    <td>{{joy_dict['label'][i]}}</td>
+                                    <td>{{joy_dict['sa'][i]}}</td>
+                                    <td>{{joy_dict['da'][i]}}</td>
+                                    <td>{{joy_dict['sp'][i]}}</td>
+                                    <td>{{joy_dict['dp'][i]}}</td>
+                                    <td>{{joy_dict['pr'][i]}}</td>
                                 </tr>
-                                 {% endfor %}
+                                {% endfor %}
                             </tbody>
-                           
+
                         </table>
                     </div>
                 </div>
@@ -135,14 +145,26 @@
         </div>
     </div>
 
- <!-- Tab content -->
+    <!-- Tab content -->
     <div id="app" class="tabcontent">
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
                     <br>
-                    <h4>Number of flows:{{flmt_flow_num}}</h4>
+                    <h4>Number of flows:{{app_flow_num}}</h4>
                     <br>
+                    <div align="center">
+                        {{app_div|indent(4)|safe }}
+                    </div>
+                    <br>
+                    <!--
+                    <div align="center">
+                    <a href="/download/app/{{ID}}">
+                        <button type="submit" class="btn btn-primary"><img src="../static/image/download.svg" width="25" height="25"> Download full csv</button>
+                    </a> 
+                    </div>
+                    <br>
+-->
                     <div class="table-responsive">
                         <table cellpadding="10" border='1' id="apptable" class="table table-bordered table-striped">
                             <thead>
@@ -154,14 +176,14 @@
                                 <th>Protocol</th>
                             </thead>
                             <tbody>
-                                {%for i in range(flmt_flow_num)%}
+                                {%for i in range(app_flow_num)%}
                                 <tr>
-                                    <td>{{flmt_label[i]}}</td>
-                                    <td>{{flmt_sa[i]}}</td>
-                                    <td>{{flmt_da[i]}}</td>
-                                    <td>{{flmt_sp[i]}}</td>
-                                    <td>{{flmt_dp[i]}}</td>
-                                    <td>{{flmt_pr[i]}}</td>
+                                    <td>{{app_dict['label'][i]}}</td>
+                                    <td>{{app_dict['sa'][i]}}</td>
+                                    <td>{{app_dict['da'][i]}}</td>
+                                    <td>{{app_dict['sp'][i]}}</td>
+                                    <td>{{app_dict['dp'][i]}}</td>
+                                    <td>{{app_dict['pr'][i]}}</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>

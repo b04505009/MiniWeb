@@ -10,22 +10,20 @@ import os
 import subprocess
 import xgboost as xgb
 
-def S2P12(path):
+def S2P12(path,model,bst):
     Generator(path)
     toTest12()
-    y = Predict12()
+    y = Predict12(model,bst)
     df = pd.DataFrame(y)
-    print(df)
     return df[0]
-def P2P12(path):
+def P2P12(path,model,bst):
     if(not os.path.exists('./tmp')):
         os.mkdir('./tmp')
     else:
         if(os.path.exists('./tmp/table12.csv')):
-           os.remove('./tmp/table12.csv')
+            os.remove('./tmp/table12.csv')
         if(os.path.exists('./tmp/test12.csv')):
             os.remove('./tmp/test12.csv')
-    
     filename1 = "./tmp/joy.gz"       
     filename2 = "./tmp/sleuth.json"
     #p = subprocess.Popen("../joy/bin/joy classify=1 tls=1 dns=1 http=1 bidir=1 idp=16 dist=1 entropy=1 {0} > {1}".format(path, filename1),shell = True)
@@ -33,7 +31,7 @@ def P2P12(path):
     #p = subprocess.Popen("../joy/sleuth {0} > {1}".format(filename1, filename2), shell=True)
     #p.wait()
         ###Sleuth2Predict
-    y = S2P12(filename2)
+    y = S2P12(filename2,model,bst)
     df = pd.read_csv("./tmp/table12.csv")
     df['sp'] = df['sp'].fillna(0).astype(int)
     df['dp'] = df['dp'].fillna(0).astype(int)
@@ -43,9 +41,9 @@ def P2P12(path):
     return df
 
 
-def Predict12():
-    bst = xgb.Booster({'nthread':4})
-    bst.load_model('model/model12.bin')
+def Predict12(model,bst):
+    #bst = xgb.Booster({'nthread':4})
+    #bst.load_model('model/model12.bin')
     df = pd.read_csv('tmp/test12.csv')
     X_test = df.values
     dtest = xgb.DMatrix(X_test)
@@ -78,5 +76,3 @@ if __name__ == "__main__":
     #df = pd.DataFrame(y)
     #print(df[1])
     #print(y[1:5][])
-    print(y)
-    print(y.label)

@@ -14,6 +14,14 @@
 </head>
 
 <body>
+    {% if error != "" %}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{error}}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+    </div>
+    {% endif %}
     <form id="uploadform" enctype="multipart/form-data">
         <input id="upload" type="file" accept=".pcap" name="upload">
         <p>Drag your files here or click in this area.</p>

@@ -19,19 +19,24 @@ def flowmeter_result(file_dir_name, ID,model1, model2, graph1, graph2, scaler):
     print(data.shape)
     df = pd.DataFrame(data)
     data = data.drop(['Flow ID', 'Src IP', 'Dst IP','Timestamp', 'Label', 'Src Port', 'Dst Port'], axis=1)
-    data = scaler.transform(data)
-    data = np.expand_dims(data, axis=2)
-    pred = 0.0
-    with graph1.as_default():
-        pred += model1.predict(data)
-    with graph2.as_default():
-        pred += model2.predict(data)
-    pred = pred/2
-    pred = pd.DataFrame(pred)
-    pred.columns = ['tor label']
-    result = pd.concat([pred, df], axis=1)
-    result = result[~(result.Protocol == 0)]
+    if data.shape[0] != 0:
+        data = scaler.transform(data)
+        data = np.expand_dims(data, axis=2)
+        pred = 0.0
+        with graph1.as_default():
+            pred += model1.predict(data)
+        with graph2.as_default():
+            pred += model2.predict(data)
+        pred = pred/2
+        pred = pd.DataFrame(pred)
+        pred.columns = ['tor label']
+        result = pd.concat([pred, df], axis=1)
+        result = result[~(result.Protocol == 0)]
+    else:
+        df['tor label'] = None
+        result = df
     return result
+    
 
 
     
