@@ -12,9 +12,11 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js"></script>
+    {#
     {{ joy_js_resources|indent(4)|safe }} 
     {{ joy_css_resources|indent(4)|safe }} 
     {{ joy_script|indent(4)|safe }} 
+    #}
     {{ flmt_js_resources|indent(4)|safe }}
     {{ flmt_css_resources|indent(4)|safe }} 
     {{ flmt_script|indent(4)|safe }} 
@@ -23,7 +25,7 @@
     {{ app_script|indent(4)|safe }}
     <script>
         $(document).ready(function() {
-            $('#joytable').DataTable();
+            // $('#joytable').DataTable();
             $('#flmttable').DataTable();
             $('#apptable').DataTable();
         });
@@ -34,9 +36,9 @@
     {% if ID %}
     <div class="tab">
         <button class="tablinks" onclick="openModelResult(event, 'flmt')" id="defaultOpen"><img src="https://upload.wikimedia.org/wikipedia/commons/8/8b/Orbot-logo.svg" width="25" height="25"> FlowMeter</button>
-
+        <!--
         <button class="tablinks" onclick="openModelResult(event, 'joy')"><img src="../static/image/malware_icon.gif" width="25" height="25"> Joy</button>
-
+        -->
         <button class="tablinks" onclick="openModelResult(event, 'app')"><img src="../static/image/app_icon.png" width="25" height="25"> Application</button>
     </div>
 
@@ -53,7 +55,7 @@
                         {{ flmt_div|indent(4)|safe }}
                     </div>
                     <!--
-                                        <br>
+                    <br>
                     <div align="center">
                     <a href="/download/flmt/{{ID}}">
                         <button type="submit" class="btn btn-primary"><img src="../static/image/download.svg" width="25" height="25"> Download full csv</button>
@@ -92,8 +94,8 @@
             </div>
         </div>
     </div>
-
-    <!-- Tab content -->
+<!--
+{#
     <div id="joy" class="tabcontent">
 
         <div class="container">
@@ -106,14 +108,12 @@
                         {{ joy_div|indent(4)|safe }}
                     </div>
                     <br>
-                    <!--
                     <div align="center">
                     <a href="/download/joy/{{ID}}">
                         <button type="submit" class="btn btn-primary"><img src="../static/image/download.svg" width="25" height="25"> Download full csv</button>
                     </a> 
                     </div>
                     <br>
--->
                     <div class="table-responsive">
                         <table cellpadding="10" border='1' id="joytable" class="table table-bordered table-striped">
                             <thead>
@@ -144,7 +144,8 @@
             </div>
         </div>
     </div>
-
+#}
+-->
     <!-- Tab content -->
     <div id="app" class="tabcontent">
         <div class="container">

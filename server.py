@@ -185,10 +185,10 @@ def result(thread_id):
         flmt_df.to_csv(dir_name + '/' + ID + '_flmt.csv',sep=',', encoding='utf-8',index = False)
         print("flowmeter good")
         exporting_threads[thread_id].update("flmt")
-        joy_df = P2P(file_dir_name, joy_model)
-        joy_df.to_csv(dir_name + '/' + ID + '_joy.csv',sep=',', encoding='utf-8',index = False)
-        print("joy good")
-        exporting_threads[thread_id].update("joy")
+        #joy_df = P2P(file_dir_name, joy_model)
+        #joy_df.to_csv(dir_name + '/' + ID + '_joy.csv',sep=',', encoding='utf-8',index = False)
+        #print("joy good")
+        #exporting_threads[thread_id].update("joy")
         app_df = P2P12(file_dir_name, joy12_model, bst)
         app_df.to_csv(dir_name + '/' + ID + '_app.csv',sep=',', encoding='utf-8',index = False)
         print("app good")
@@ -209,10 +209,10 @@ def result(thread_id):
     os.remove(dir_name + '/' + ID + '.pcap')
     os.remove(dir_name + '/' + ID + '.pcap_Flow.csv')
 
-    joy_flow_num = joy_df.shape[0]
+    app_flow_num = app_df.shape[0]
     flmt_flow_num = flmt_df.shape[0]
     
-    record.insert(ID, joy_flow_num, flmt_flow_num, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    record.insert(ID, app_flow_num, flmt_flow_num, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
             
     #print(joy_df)
     return redirect('results/'+ ID)
@@ -229,19 +229,19 @@ def results(ID=""):
     if not record.find(ID):
         return "Invalid Query"
     else:
-        joy_dict = pd.read_csv(dir_name + '/' + ID + '_joy.csv')[['label','sa','da','sp','dp','pr']].reset_index().to_dict(orient='list')
+        #joy_dict = pd.read_csv(dir_name + '/' + ID + '_joy.csv')[['label','sa','da','sp','dp','pr']].reset_index().to_dict(orient='list')
         flmt_dict = pd.read_csv(dir_name + '/' + ID + '_flmt.csv')[['tor label','Src IP','Dst IP','Src Port','Dst Port','Protocol']].reset_index().to_dict(orient='list')
         app_dict = pd.read_csv(dir_name + '/' + ID + '_app.csv')[['label','sa','da','sp','dp','pr']].reset_index().to_dict(orient='list')
-        joy_dict['label'] = [round(l,2) for l in joy_dict['label']]
+        #joy_dict['label'] = [round(l,2) for l in joy_dict['label']]
         flmt_dict['tor label'] = [round(l,2) for l in flmt_dict['tor label']]
         app_dict['label'] = [round(l,2) for l in app_dict['label']]
-        joy_flow_num = len(joy_dict['label'])
+        #joy_flow_num = len(joy_dict['label'])
         flmt_flow_num = len(flmt_dict['tor label'])
         app_flow_num = len(app_dict['label'])
         LABEL2DIG = {'chat':0, 'voip':1, 'trap2p':2, 'stream':3, 'file_trans':4, 'email':5, 'vpn_chat':6, 'vpn_voip':7, 'vpn_trap2p':8, 'vpn_stream':9, 'vpn_file_trans':10, 'vpn_email':11}
         DIG2LABEL = {v: k for k, v in LABEL2DIG.items()}
         app_dict['label'] = [DIG2LABEL[d] for d in app_dict['label'] ]
-    
+        """
         # joy pie chart
         joy_m = len([i for i in joy_dict['label'] if i > 0.8])
         joy_b = joy_flow_num - joy_m
@@ -264,7 +264,7 @@ def results(ID=""):
         joy_js_resources = INLINE.render_js()
         joy_css_resources = INLINE.render_css()
         joy_script, joy_div = components(p)
-        
+        """
         # flmt pie chart
         flmt_t = len([i for i in flmt_dict['tor label'] if i > 0.5])
         flmt_nt = flmt_flow_num - flmt_t
@@ -313,16 +313,16 @@ def results(ID=""):
         return render_template(
             'results.html',
             ID=ID,
-            joy_dict = joy_dict,
-            joy_flow_num=joy_flow_num,
+            #joy_dict = joy_dict,
+            #joy_flow_num=joy_flow_num,
             flmt_dict = flmt_dict,
             flmt_flow_num=flmt_flow_num,
             app_dict=app_dict,
             app_flow_num=app_flow_num,
-            joy_js_resources = joy_js_resources,
-            joy_css_resources = joy_css_resources,
-            joy_script = joy_script,
-            joy_div = joy_div,
+            #joy_js_resources = joy_js_resources,
+            #joy_css_resources = joy_css_resources,
+            #joy_script = joy_script,
+            #joy_div = joy_div,
             flmt_js_resources = flmt_js_resources,
             flmt_css_resources = flmt_css_resources,
             flmt_script = flmt_script,

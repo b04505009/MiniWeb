@@ -42,15 +42,18 @@ function check_progress() {
                 setTimeout(worker, 500)
             }
             if (status == "flmt") {
-                bar.style.width = '33%';
+                // bar.style.width = '33%';
+                bar.style.width = '45%';
                 modal.find('.modal-body #status_context').text("Flowmeter finished!  Waiting for Joy running." + ".".repeat(dot));
                 setTimeout(worker, 500)
             }
+            /*
             if (status == "joy") {
                 bar.style.width = '66%';
                 modal.find('.modal-body #status_context').text("Joy finished!  Waiting for application classification." + ".".repeat(dot));
                 setTimeout(worker, 500)
             }
+            */
             if (status == "app") {
                 bar.style.width = '100%';
                 setTimeout(worker, 1000)
