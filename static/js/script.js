@@ -9,7 +9,7 @@ $(document).ready(function() {
         var type = this.files[0].name.split(".")
         type = type[type.length - 1]
         if (type == 'pcap') {
-            $('form p').text(this.files.length + " file(s) selected");
+            $('form p').text("\ " + this.files.length + " file(s) selected");
         } else {
             alert('please select a pcap file');
             $("#upload").val('');

@@ -30,7 +30,7 @@ def P2P12(path,model,bst):
     p.wait()
     p = subprocess.Popen("../joy/sleuth {0} > {1}".format(filename1, filename2), shell=True)
     p.wait()
-        ###Sleuth2Predict
+    ##Sleuth2Predict
     y = S2P12(filename2,model,bst)
     df = pd.read_csv("./tmp/table12.csv")
     df['sp'] = df['sp'].fillna(0).astype(int)
