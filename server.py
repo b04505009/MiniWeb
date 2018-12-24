@@ -52,7 +52,7 @@ graph1 = tf.get_default_graph()
 model2 = load_model("./model/model-00001-0.98077-0.06064.h5")
 graph2 = tf.get_default_graph()
 scaler = joblib.load('./model/scaler.pkl')
-joy_model = joblib.load('model/RF.pkl')
+# joy_model = joblib.load('model/RF.pkl')
 bst = xgb.Booster({'nthread':4})
 joy12_model =  bst.load_model('model/model12.bin')
 
