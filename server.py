@@ -141,7 +141,7 @@ def status(thread_id):
     global exporting_threads
     if thread_id in exporting_threads:
         return str(exporting_threads[thread_id].get_status())
-    else
+    else:
         return redirect('upload')
     
 
@@ -150,7 +150,7 @@ def ID(thread_id):
     global exporting_threads
     if thread_id in exporting_threads:
         return str(exporting_threads[thread_id].ID())
-    else
+    else:
         return redirect('upload')
     
 
@@ -159,7 +159,7 @@ def checkvalid(thread_id):
     global exporting_threads
     if thread_id in exporting_threads:
         ID = exporting_threads[thread_id].get_ID()
-    else
+    else:
         return redirect('upload')
     upload = request.files.get('upload')
     print("file")
@@ -190,7 +190,7 @@ def result(thread_id):
     global exporting_threads
     if thread_id in exporting_threads:
         ID = exporting_threads[thread_id].get_ID()
-    else
+    else:
         return redirect('upload')
     if record.find(ID):
         return redirect('results/'+ ID)
