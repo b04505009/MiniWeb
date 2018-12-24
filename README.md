@@ -26,7 +26,9 @@ Our server will be run on localhost:5000
 
 ## docker
 you can also use docker to build and run our program.
-`docker build --rm -t miniweb .
- docker run -p 5000:5000 miniweb`
+
+`docker build --rm -t miniweb .`
+
+`docker run -p 5000:5000 miniweb`
 
 
