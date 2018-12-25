@@ -2,7 +2,7 @@
 this is a mini web build by *flask*
 to evaluate the security of flow.
 We evaluate the flow by
-1. Distinguish Malware from Benign one.
+1. Identify whether a flow is tor or non-tor usage.
 2. Multiclass Classification to classify different application
 
 ## Environment
