@@ -16,6 +16,10 @@ We evaluate the flow by
 ## Install
 `./install.sh`
 
+> Warning: 
+> some package like tensorflow would influence on the install of joy
+> Thus, joy should be installed before those package.
+
 ## Usage
 `python3 server.py`
 
