@@ -1,5 +1,5 @@
 # MiniWeb
-this is a mini web build by *flask*
+This is a mini web build by *flask*
 to evaluate the security of flow.
 We evaluate the flow by
 1. Identify whether a flow is tor or non-tor usage.
@@ -17,7 +17,7 @@ We evaluate the flow by
 `./install.sh`
 
 > Warning: 
-> some package like tensorflow would influence on the install of joy
+> Some package like tensorflow would influence on the install of joy.
 > Thus, joy should be installed before those package.
 
 ## Usage
@@ -30,7 +30,7 @@ Our server will be run on localhost:5000
 - [joy](https://github.com/cisco/joy)
 
 ## docker
-you can also use docker to build and run our program.
+You can also use docker to build and run our program.
 
 `docker build --rm -t miniweb .`
 
