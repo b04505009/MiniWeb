@@ -16,7 +16,7 @@ h5py==2.8.0
 keras==2.2.4
 keras-applications==1.0.6
 keras-preprocessing==1.0.5
-pyyaml==3.13
+pyyaml==5.1
 absl-py==0.6.1
 astor==0.7.1
 gast==0.2.0 
